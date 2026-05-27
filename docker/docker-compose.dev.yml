@@ -66,6 +66,26 @@ services:
       - mercado-net
 
   # ---------------------------------------------------------------------------
+  # Frontend React (Vite com hot-reload)
+  # Acesse: http://localhost:5173
+  # ---------------------------------------------------------------------------
+  frontend:
+    image: node:20-alpine
+    container_name: mercado-frontend-dev
+    working_dir: /app
+    volumes:
+      - ../frontend:/app
+    ports:
+      - "5173:5173"
+    environment:
+      - WATCHPACK_POLLING=true
+    command: sh -c "npm run dev -- --host"
+    depends_on:
+      - app
+    networks:
+      - mercado-net
+
+  # ---------------------------------------------------------------------------
   # Adminer: interface web para o banco de dados
   # Acesse: http://localhost:8888
   # Servidor: postgres | Banco: mercado_dev | Usuário: mercado | Senha: mercado123
