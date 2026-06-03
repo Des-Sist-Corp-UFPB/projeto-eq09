@@ -46,6 +46,9 @@ public class SecurityConfig {
                 
                 // Configuração das rotas e permissões
                 .authorizeHttpRequests(auth -> auth
+                        // Recursos estáticos do frontend (React) são públicos
+                        .requestMatchers("/", "/index.html", "/favicon.ico", "/assets/**").permitAll()
+                        
                         // Endpoints de autenticação pública
                         .requestMatchers("/api/auth/**").permitAll()
                         
