@@ -21,6 +21,43 @@ export default function Home({ usuario }) {
   });
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadError('');
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('http://localhost:8080/api/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${usuario.token}`
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNewMovie(prev => ({
+          ...prev,
+          imagemUrl: data.url
+        }));
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        setUploadError(errData.error || 'Erro ao fazer upload da imagem.');
+      }
+    } catch (err) {
+      setUploadError('Erro de conexão ao servidor.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const fetchMovies = async (searchQuery = '') => {
     setIsLoading(true);
@@ -263,17 +300,37 @@ export default function Home({ usuario }) {
               </div>
             </div>
 
-            {/* Imagem URL */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>URL da Imagem do Cartaz</label>
-              <input
-                type="url"
-                name="imagemUrl"
-                placeholder="Ex: https://images.unsplash.com/... ou deixe em branco para imagem padrão"
-                value={newMovie.imagemUrl}
-                onChange={handleInputChange}
-                className="form-input"
-              />
+            {/* Imagem URL e Upload */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '20px'
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Fazer Upload do Cartaz</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="form-input"
+                  style={{ padding: '8px' }}
+                  disabled={isUploading}
+                />
+                {isUploading && <span style={{ fontSize: '12px', color: 'var(--primary)' }}>Enviando imagem...</span>}
+                {uploadError && <span style={{ fontSize: '12px', color: 'var(--danger)' }}>{uploadError}</span>}
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>URL do Cartaz</label>
+                <input
+                  type="url"
+                  name="imagemUrl"
+                  placeholder="Preenchida pelo upload ou cole uma URL"
+                  value={newMovie.imagemUrl}
+                  onChange={handleInputChange}
+                  className="form-input"
+                />
+              </div>
             </div>
 
             {/* Sinopse */}

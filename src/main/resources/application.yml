@@ -3,6 +3,20 @@ spring:
     name: mercado
   profiles:
     active: dev
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# Configurações AWS S3 / MinIO
+aws:
+  s3:
+    endpoint: http://localhost:9000
+    public-endpoint: http://localhost:9000
+    bucket: eq09
+    access-key: eq09
+    secret-key: 01nXvfGS3LUOABjTxleE0Jy7
+    region: us-east-1
 
 # Actuator - monitoramento da aplicação
 # Acesse: http://localhost:8080/actuator/health
