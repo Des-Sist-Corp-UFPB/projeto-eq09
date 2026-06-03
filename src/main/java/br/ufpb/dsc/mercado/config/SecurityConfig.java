@@ -55,6 +55,9 @@ public class SecurityConfig {
                         // Monitoramento de saúde é público
                         .requestMatchers("/actuator/health").permitAll()
                         
+                        // Endpoint de ping público
+                        .requestMatchers("/ping").permitAll()
+                        
                         // Adicionar novos filmes é de acesso exclusivo a usuários ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/filmes").hasRole("ADMIN")
                         
