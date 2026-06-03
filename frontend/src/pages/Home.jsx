@@ -34,7 +34,7 @@ export default function Home({ usuario }) {
     formData.append('file', file);
 
     try {
-      const response = await fetch('http://localhost:8080/api/upload', {
+      const response = await fetch('/api/upload', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${usuario.token}`
@@ -63,8 +63,8 @@ export default function Home({ usuario }) {
     setIsLoading(true);
     try {
       const url = searchQuery 
-        ? `http://localhost:8080/api/filmes?busca=${encodeURIComponent(searchQuery)}`
-        : 'http://localhost:8080/api/filmes';
+        ? `/api/filmes?busca=${encodeURIComponent(searchQuery)}`
+        : '/api/filmes';
       
       const response = await fetch(url);
       if (response.ok) {
@@ -101,7 +101,7 @@ export default function Home({ usuario }) {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/filmes', {
+      const response = await fetch('/api/filmes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

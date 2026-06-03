@@ -15,7 +15,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
   const fetchComments = async () => {
     setIsLoadingComments(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/filmes/${filme.id}/comentarios`);
+      const response = await fetch(`/api/filmes/${filme.id}/comentarios`);
       if (response.ok) {
         const data = await response.json();
         setComentarios(data);
@@ -46,7 +46,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/filmes/${filme.id}/avaliar`, {
+      const response = await fetch(`/api/filmes/${filme.id}/avaliar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/filmes/${filme.id}/comentarios`, {
+      const response = await fetch(`/api/filmes/${filme.id}/comentarios`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

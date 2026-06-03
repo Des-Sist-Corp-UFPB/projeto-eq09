@@ -1,20 +1,27 @@
 # =============================================================================
-# Dockerfile de PRODUÇÃO — Multi-stage build
+# Dockerfile de PRODUÇÃO — Multi-stage build (Frontend + Backend)
 # =============================================================================
-# Estágio 1 (builder): compila o projeto com Maven e gera o JAR.
-# Estágio 2 (runtime): imagem mínima com apenas o JRE, sem ferramentas de build.
-#
-# Vantagens do multi-stage:
-#   - Imagem final muito menor (sem Maven, sem fontes Java, sem classes temp.)
-#   - Superfície de ataque reduzida (menos binários = menos vulnerabilidades)
-#   - Separação entre ambiente de build e runtime
-#
-# Como construir:
-#   docker build -f docker/Dockerfile -t mercado:latest .
+# Estágio 1 (frontend-builder): constrói a aplicação React com Vite.
+# Estágio 2 (backend-builder): copia os assets compilados do React para a pasta
+#                              static do Spring, compila o projeto com Maven e gera o JAR.
+# Estágio 3 (runtime): imagem mínima com apenas o JRE, rodando a aplicação.
 # =============================================================================
 
-# ---- Estágio 1: Build -------------------------------------------------------
-FROM maven:3.9.9-eclipse-temurin-21 AS builder
+# ---- Estágio 1: Frontend Build ----------------------------------------------
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /frontend
+
+# Copiar arquivos de dependências
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci --silent
+
+# Copiar código-fonte e compilar
+COPY frontend/ ./
+RUN npm run build
+
+# ---- Estágio 2: Backend Build -----------------------------------------------
+FROM maven:3.9.9-eclipse-temurin-21 AS backend-builder
 
 WORKDIR /build
 
@@ -22,22 +29,27 @@ WORKDIR /build
 COPY pom.xml .
 RUN mvn dependency:go-offline -B -q
 
-# Copiar código-fonte e compilar
+# Copiar código-fonte
 COPY src ./src
+
+# Copiar os arquivos estáticos do React compilados para a pasta static do Spring Boot
+# Desta forma, o Spring Boot servirá o frontend na rota raiz '/'
+COPY --from=frontend-builder /frontend/dist ./src/main/resources/static
+
+# Compilar o backend Java gerando o arquivo JAR
 RUN mvn clean package -DskipTests -B -q
 
-# ---- Estágio 2: Runtime -----------------------------------------------------
+# ---- Estágio 3: Runtime -----------------------------------------------------
 FROM eclipse-temurin:21-jre-jammy AS runtime
 
 # Criar usuário não-root por segurança
-# Executar aplicações como root em container é má prática de segurança
 RUN groupadd --gid 1001 mercado && \
     useradd --uid 1001 --gid mercado --shell /bin/false mercado
 
 WORKDIR /app
 
 # Copiar apenas o JAR do estágio anterior
-COPY --from=builder /build/target/*.jar app.jar
+COPY --from=backend-builder /build/target/*.jar app.jar
 
 # Definir owner do arquivo
 RUN chown mercado:mercado app.jar
@@ -47,13 +59,10 @@ USER mercado
 
 EXPOSE 8080
 
-# Health check: o Actuator expõe /actuator/health
+# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD wget -qO- http://localhost:8080/actuator/health || exit 1
 
-# Opções JVM para produção:
-#   -XX:+UseContainerSupport: respeita limites de memória do container
-#   -XX:MaxRAMPercentage=75: usa até 75% da RAM disponível para o heap
 ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
     "-XX:MaxRAMPercentage=75.0", \
