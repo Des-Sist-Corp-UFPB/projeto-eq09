@@ -23,9 +23,12 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        // Remove usuário admin antigo se existir
+        usuarioRepository.findByUsername("admin").ifPresent(usuarioRepository::delete);
+
         // Inicializa Usuários padrão se não existirem
-        if (!usuarioRepository.existsByUsername("admin")) {
-            Usuario admin = new Usuario("admin", passwordEncoder.encode("admin123"), "ADMIN");
+        if (!usuarioRepository.existsByUsername("admin@admin.com")) {
+            Usuario admin = new Usuario("admin@admin.com", passwordEncoder.encode("admin123"), "ADMIN");
             usuarioRepository.save(admin);
         }
 

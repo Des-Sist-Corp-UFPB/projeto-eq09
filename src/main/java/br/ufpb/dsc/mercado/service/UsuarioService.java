@@ -58,10 +58,7 @@ public class UsuarioService implements UserDetailsService {
         }
 
         String encodedPassword = passwordEncoder.encode(request.password());
-        String role = request.role() != null ? request.role().toUpperCase() : "USER";
-        if (!role.equals("ADMIN") && !role.equals("USER")) {
-            role = "USER";
-        }
+        String role = "USER";
 
         Usuario usuario = new Usuario(request.username(), encodedPassword, role);
         usuarioRepository.save(usuario);

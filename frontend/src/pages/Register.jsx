@@ -5,7 +5,6 @@ export default function Register({ onNavigate }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('USER'); // Default is USER, but can be ADMIN for ease of testing!
   
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -43,7 +42,7 @@ export default function Register({ onNavigate }) {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username, password, role })
+        body: JSON.stringify({ username, password })
       });
 
       if (response.ok) {
@@ -119,40 +118,6 @@ export default function Register({ onNavigate }) {
             </div>
           </div>
 
-          {/* User Role (for easy testing!) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Tipo de Conta</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              <button
-                type="button"
-                onClick={() => setRole('USER')}
-                className={role === 'USER' ? 'btn-primary' : 'btn-secondary'}
-                style={{
-                  padding: '10px',
-                  fontSize: '13px',
-                  justifyContent: 'center',
-                  boxShadow: 'none',
-                  border: role === 'USER' ? 'none' : '1px solid var(--glass-border)'
-                }}
-              >
-                Usuário Comum
-              </button>
-              <button
-                type="button"
-                onClick={() => setRole('ADMIN')}
-                className={role === 'ADMIN' ? 'btn-primary' : 'btn-secondary'}
-                style={{
-                  padding: '10px',
-                  fontSize: '13px',
-                  justifyContent: 'center',
-                  boxShadow: 'none',
-                  border: role === 'ADMIN' ? 'none' : '1px solid var(--glass-border)'
-                }}
-              >
-                Administrador
-              </button>
-            </div>
-          </div>
 
           {/* Password */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
