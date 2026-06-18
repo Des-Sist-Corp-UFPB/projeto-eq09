@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Star, MessageSquare, Send, Calendar, Tag, User, MessageCircle } from 'lucide-react';
+import { X, Star, MessageSquare, Send, Calendar, Tag, User, MessageCircle, Trash2 } from 'lucide-react';
 
 export default function MovieDetailModal({ filme, usuario, onClose }) {
   const [comentarios, setComentarios] = useState([]);
@@ -120,6 +120,37 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
       }
     } catch (err) {
       setSubmitMessage({ text: 'Falha de rede ao enviar comentário.', type: 'danger' });
+    }
+  };
+
+  const handleDeleteComment = async (comentarioId) => {
+    if (!usuario || usuario.role !== 'ADMIN') {
+      setSubmitMessage({ text: 'Apenas administradores podem excluir comentários.', type: 'danger' });
+      return;
+    }
+
+    if (!window.confirm('Tem certeza de que deseja excluir este comentário?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/filmes/${filme.id}/comentarios/${comentarioId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${usuario.token}`
+        }
+      });
+
+      if (response.ok) {
+        setComentarios(prev => prev.filter(c => c.id !== comentarioId));
+        setSubmitMessage({ text: 'Comentário excluído com sucesso!', type: 'success' });
+        setTimeout(() => setSubmitMessage({ text: '', type: '' }), 3000);
+      } else {
+        const text = await response.text();
+        setSubmitMessage({ text: text || 'Erro ao excluir comentário.', type: 'danger' });
+      }
+    } catch (err) {
+      setSubmitMessage({ text: 'Falha de rede ao excluir comentário.', type: 'danger' });
     }
   };
 
@@ -401,11 +432,36 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                       border: '1px solid rgba(255,255,255,0.03)'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                       <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--primary)' }}>@{c.username}</span>
-                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                        {new Date(c.criadoEm).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                          {new Date(c.criadoEm).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        {usuario?.role === 'ADMIN' && (
+                          <button
+                            onClick={() => handleDeleteComment(c.id)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'var(--danger)',
+                              cursor: 'pointer',
+                              padding: '2px',
+                              borderRadius: '4px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              opacity: 0.8,
+                              transition: 'opacity 0.2s, background-color 0.2s',
+                            }}
+                            title="Excluir comentário"
+                            onMouseEnter={(e) => { e.currentTarget.style.opacity = 1; e.currentTarget.style.backgroundColor = 'rgba(239, 71, 111, 0.1)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.opacity = 0.8; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <p style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: '1.4' }}>{c.texto}</p>
                   </div>

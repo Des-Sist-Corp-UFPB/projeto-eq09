@@ -58,4 +58,16 @@ public class ComentarioService {
                 comentarioSalvo.getCriadoEm()
         );
     }
+
+    @Transactional
+    public void remover(Long filmeId, Long comentarioId) {
+        Comentario comentario = comentarioRepository.findById(comentarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Comentário não encontrado: " + comentarioId));
+
+        if (!comentario.getFilme().getId().equals(filmeId)) {
+            throw new IllegalArgumentException("Comentário não pertence ao filme informado.");
+        }
+
+        comentarioRepository.delete(comentario);
+    }
 }

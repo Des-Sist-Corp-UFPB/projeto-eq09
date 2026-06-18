@@ -64,6 +64,9 @@ public class SecurityConfig {
                         // Adicionar novos filmes é de acesso exclusivo a usuários ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/filmes").hasRole("ADMIN")
                         
+                        // Excluir comentários é de acesso exclusivo a usuários ADMIN
+                        .requestMatchers(HttpMethod.DELETE, "/api/filmes/*/comentarios/*").hasRole("ADMIN")
+                        
                         // Avaliar e comentar filmes exige login (tanto ADMIN quanto USER comuns podem)
                         .requestMatchers(HttpMethod.POST, "/api/filmes/*/avaliar").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/filmes/*/comentarios").authenticated()

@@ -39,4 +39,14 @@ public class ComentarioController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @DeleteMapping("/{comentarioId}")
+    public ResponseEntity<?> remover(@PathVariable Long filmeId, @PathVariable Long comentarioId) {
+        try {
+            comentarioService.remover(filmeId, comentarioId);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
