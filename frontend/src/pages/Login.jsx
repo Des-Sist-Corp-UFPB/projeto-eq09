@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Lock, Key, LogIn, AlertCircle } from 'lucide-react';
+import { User, Lock, LogIn, AlertCircle } from 'lucide-react';
 
 export default function Login({ onLoginSuccess, onNavigate }) {
   const [username, setUsername] = useState('');
@@ -41,47 +41,46 @@ export default function Login({ onLoginSuccess, onNavigate }) {
   };
 
   return (
-    <div className="container animate-fade-in" style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '65vh',
-      paddingTop: '20px'
-    }}>
+    <div className="animate-fade-in" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
       <div 
         className="glass-panel" 
         style={{
           width: '100%',
-          maxWidth: '420px',
+          maxWidth: '400px',
           padding: '40px 32px',
-          border: '1px solid rgba(157, 78, 221, 0.2)',
-          boxShadow: '0 15px 35px rgba(157, 78, 221, 0.1)'
+          backgroundColor: 'var(--bg-secondary)',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
         }}
       >
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{
-            background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
-            borderRadius: '12px',
-            width: '48px',
-            height: '48px',
+            background: 'linear-gradient(135deg, var(--accent), var(--primary))',
+            borderRadius: '10px',
+            width: '44px',
+            height: '44px',
             margin: '0 auto 16px auto',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             boxShadow: '0 0 15px var(--primary-glow)'
           }}>
-            <LogIn size={24} color="#fff" />
+            <LogIn size={20} color="#0c0e12" />
           </div>
-          <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#fff', marginBottom: '8px' }}>Bem-vindo de Volta</h2>
-          <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Acesse sua conta para avaliar e comentar filmes</p>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#fff', marginBottom: '6px', letterSpacing: '-0.5px' }}>
+            DSC<span style={{ color: 'var(--primary)' }}>boxd</span>
+          </h2>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Acesse sua conta para avaliar e comentar filmes</p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Username */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Nome de Usuário</label>
+            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Nome de Usuário
+            </label>
             <div style={{ position: 'relative' }}>
               <input
                 type="text"
@@ -92,13 +91,15 @@ export default function Login({ onLoginSuccess, onNavigate }) {
                 style={{ paddingLeft: '40px' }}
                 required
               />
-              <User size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+              <User size={15} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
             </div>
           </div>
 
           {/* Password */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Senha</label>
+            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Senha
+            </label>
             <div style={{ position: 'relative' }}>
               <input
                 type="password"
@@ -109,7 +110,7 @@ export default function Login({ onLoginSuccess, onNavigate }) {
                 style={{ paddingLeft: '40px' }}
                 required
               />
-              <Lock size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+              <Lock size={15} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
             </div>
           </div>
 
@@ -118,7 +119,7 @@ export default function Login({ onLoginSuccess, onNavigate }) {
             <div className="glass-panel" style={{
               padding: '10px 14px',
               borderRadius: 'var(--border-radius-sm)',
-              backgroundColor: 'rgba(239, 71, 111, 0.1)',
+              backgroundColor: 'rgba(255, 51, 102, 0.1)',
               borderColor: 'var(--danger)',
               color: 'var(--danger)',
               fontSize: '13px',
@@ -127,7 +128,7 @@ export default function Login({ onLoginSuccess, onNavigate }) {
               alignItems: 'center',
               gap: '8px'
             }}>
-              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <AlertCircle size={15} style={{ flexShrink: 0 }} />
               <span>{error}</span>
             </div>
           )}
@@ -145,15 +146,15 @@ export default function Login({ onLoginSuccess, onNavigate }) {
 
         {/* Register Link footer */}
         <div style={{ textAlign: 'center', marginTop: '28px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '20px' }}>
-          <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Não tem uma conta? </span>
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Não tem uma conta? </span>
           <button 
             onClick={() => onNavigate('register')}
             style={{
               background: 'none',
               border: 'none',
               color: 'var(--primary)',
-              fontWeight: 600,
-              fontSize: '14px',
+              fontWeight: 700,
+              fontSize: '13px',
               cursor: 'pointer',
               textDecoration: 'underline',
               padding: 0

@@ -14,24 +14,30 @@ export default function MovieCard({ filme, onClick }) {
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        height: '420px',
+        height: '380px',
         position: 'relative',
-        transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s, box-shadow 0.3s'
+        backgroundColor: 'var(--bg-secondary)',
+        border: '1px solid rgba(255, 255, 255, 0.04)',
+        transition: 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s, box-shadow 0.3s'
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+        e.currentTarget.style.transform = 'translateY(-6px)';
+        e.currentTarget.style.borderColor = 'rgba(0, 224, 84, 0.25)';
+        e.currentTarget.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.4)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.04)';
+        e.currentTarget.style.boxShadow = '0 8px 32px 0 rgba(0, 0, 0, 0.45)';
       }}
     >
       {/* Poster Image */}
       <div style={{
         width: '100%',
-        height: '240px',
+        height: '210px',
         position: 'relative',
         overflow: 'hidden',
-        background: '#07080a'
+        background: '#0c0e12'
       }}>
         <img 
           src={filme.imagemUrl || "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop"} 
@@ -40,10 +46,10 @@ export default function MovieCard({ filme, onClick }) {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            transition: 'transform 0.6s ease'
+            transition: 'transform 0.5s ease'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.transform = 'scale(1.06)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'scale(1)';
@@ -56,27 +62,27 @@ export default function MovieCard({ filme, onClick }) {
         {/* Floating Rating Badge */}
         <div style={{
           position: 'absolute',
-          top: '12px',
-          right: '12px',
-          background: 'rgba(10, 11, 14, 0.75)',
+          top: '10px',
+          right: '10px',
+          background: 'rgba(20, 24, 28, 0.85)',
           backdropFilter: 'blur(8px)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid rgba(255, 255, 255, 0.06)',
           borderRadius: '50px',
-          padding: '4px 10px',
+          padding: '3px 8px',
           display: 'flex',
           alignItems: 'center',
-          gap: '4px',
-          boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+          gap: '3px',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.4)',
           zIndex: 1
         }}>
-          <Star size={14} className="star active" style={{ display: 'inline', color: 'var(--star-color)' }} />
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#fff' }}>{formattedRating}</span>
+          <Star size={12} className="star active" style={{ display: 'inline', color: 'var(--star-color)', fill: 'var(--star-color)' }} />
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#fff' }}>{formattedRating}</span>
         </div>
       </div>
 
       {/* Info Content */}
       <div style={{
-        padding: '20px',
+        padding: '16px',
         display: 'flex',
         flexDirection: 'column',
         flexGrow: 1,
@@ -86,52 +92,53 @@ export default function MovieCard({ filme, onClick }) {
           {/* Genre Tag */}
           {filme.genero && (
             <span style={{
-              fontSize: '11px',
-              fontWeight: 600,
-              background: 'rgba(58, 134, 200, 0.12)',
-              color: 'var(--accent-hover)',
-              padding: '3px 8px',
+              fontSize: '10px',
+              fontWeight: 700,
+              background: 'rgba(0, 224, 84, 0.08)',
+              color: 'var(--primary)',
+              padding: '2px 8px',
               borderRadius: '50px',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '4px',
+              gap: '3px',
               marginBottom: '8px',
-              border: '1px solid rgba(58, 134, 200, 0.2)'
+              border: '1px solid rgba(0, 224, 84, 0.15)'
             }}>
-              <Tag size={10} />
+              <Tag size={9} />
               {filme.genero}
             </span>
           )}
 
           {/* Title */}
           <h3 style={{
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: 700,
-            lineHeight: '1.3',
+            lineHeight: '1.25',
             color: 'var(--text-primary)',
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            marginBottom: '6px'
+            marginBottom: '4px',
+            letterSpacing: '-0.3px'
           }}>
             {filme.titulo}
           </h3>
         </div>
 
-        {/* Metadados do Rodapé */}
+        {/* Footer Metadata */}
         <div style={{
           borderTop: '1px solid rgba(255, 255, 255, 0.04)',
-          paddingTop: '12px',
+          paddingTop: '10px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          fontSize: '12px',
+          fontSize: '11px',
           color: 'var(--text-secondary)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <User size={12} color="var(--text-muted)" />
+            <User size={11} color="var(--text-muted)" style={{ flexShrink: 0 }} />
             <span style={{
               maxWidth: '90px',
               whiteSpace: 'nowrap',
@@ -142,8 +149,8 @@ export default function MovieCard({ filme, onClick }) {
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Calendar size={12} color="var(--text-muted)" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+            <Calendar size={11} color="var(--text-muted)" />
             <span>{filme.ano}</span>
           </div>
         </div>

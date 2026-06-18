@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Film, Tag, Clock, AlignLeft, User, FileImage, X } from 'lucide-react';
+import { Search, Plus, Film, X } from 'lucide-react';
 import MovieCard from '../components/MovieCard';
 import MovieDetailModal from '../components/MovieDetailModal';
 
@@ -136,48 +136,50 @@ export default function Home({ usuario }) {
   };
 
   return (
-    <main className="container animate-fade-in" style={{ paddingBottom: '80px' }}>
+    <main className="container animate-fade-in" style={{ paddingBottom: '40px' }}>
       
       {/* Banner */}
       <section style={{
         textAlign: 'center',
-        padding: '20px 0 40px 0',
+        padding: '30px 0 40px 0',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         gap: '12px'
       }}>
         <h1 style={{
-          fontSize: '38px',
+          fontSize: '32px',
           fontWeight: 800,
           background: 'linear-gradient(135deg, #fff 40%, var(--primary))',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          lineHeight: '1.2'
+          lineHeight: '1.15',
+          letterSpacing: '-0.5px'
         }}>
           Descubra Histórias Extraordinárias
         </h1>
         <p style={{
           color: 'var(--text-secondary)',
-          fontSize: '16px',
-          maxWidth: '500px',
+          fontSize: '15px',
+          maxWidth: '520px',
           lineHeight: '1.5'
         }}>
-          Explore o catálogo oficial, dê notas e compartilhe sua opinião sobre as maiores obras do cinema mundial.
+          Explore o catálogo oficial, registre suas notas e compartilhe opiniões sobre as maiores produções cinematográficas do mundo.
         </p>
       </section>
 
       {/* Control bar: Search and Add Button */}
       <section style={{
         display: 'flex',
+        flexDirection: 'row',
         flexWrap: 'wrap',
         gap: '16px',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '32px'
       }}>
-        {/* Search */}
-        <div style={{ position: 'relative', width: '100%', maxWidth: '400px' }}>
+        {/* Search Input Container */}
+        <div style={{ position: 'relative', flexGrow: 1, minWidth: '260px', maxWidth: '400px' }}>
           <input 
             type="text" 
             placeholder="Pesquisar filmes por título..." 
@@ -186,7 +188,7 @@ export default function Home({ usuario }) {
             className="form-input"
             style={{ paddingLeft: '44px' }}
           />
-          <Search size={18} color="var(--text-muted)" style={{
+          <Search size={16} color="var(--text-muted)" style={{
             position: 'absolute',
             left: '16px',
             top: '50%',
@@ -194,7 +196,7 @@ export default function Home({ usuario }) {
           }} />
         </div>
 
-        {/* Add Movie (ADMIN) */}
+        {/* Add Movie Button (ADMIN Only) */}
         {usuario && usuario.role === 'ADMIN' && (
           <button 
             onClick={() => setShowAddForm(!showAddForm)}
@@ -203,12 +205,13 @@ export default function Home({ usuario }) {
               padding: '10px 20px',
               fontSize: '14px',
               background: showAddForm 
-                ? 'linear-gradient(135deg, var(--danger), #ef476f)' 
+                ? 'linear-gradient(135deg, var(--danger), #ff1a53)' 
                 : 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
-              boxShadow: showAddForm ? 'none' : '0 4px 15px var(--primary-glow)'
+              color: showAddForm ? '#fff' : '#0c0e12',
+              boxShadow: showAddForm ? 'none' : '0 4px 12px var(--primary-glow)'
             }}
           >
-            {showAddForm ? <X size={16} /> : <Plus size={16} />}
+            {showAddForm ? <X size={15} /> : <Plus size={15} />}
             <span>{showAddForm ? 'Cancelar' : 'Cadastrar Filme'}</span>
           </button>
         )}
@@ -219,95 +222,88 @@ export default function Home({ usuario }) {
         <section 
           className="glass-panel animate-fade-in" 
           style={{
-            padding: '30px',
-            marginBottom: '40px',
-            border: '1px solid rgba(157, 78, 221, 0.25)',
-            boxShadow: '0 8px 30px rgba(157, 78, 221, 0.08)'
+            padding: '24px',
+            marginBottom: '32px',
+            backgroundColor: 'var(--bg-secondary)',
+            border: '1px solid rgba(0, 224, 84, 0.15)',
+            boxShadow: '0 8px 30px rgba(0, 224, 84, 0.04)'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
-            <Film size={22} color="var(--primary)" />
-            <h2 style={{ fontSize: '20px', fontWeight: 800 }}>Novo Cadastro de Filme</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+            <Film size={20} color="var(--primary)" />
+            <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>Novo Cadastro de Filme</h2>
           </div>
 
           <form onSubmit={handleAddMovie} style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-              gap: '20px'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: '16px'
             }}>
               {/* Titulo */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Título do Filme *</label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="text"
-                    name="titulo"
-                    placeholder="Ex: Interstellar"
-                    value={newMovie.titulo}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    required
-                  />
-                </div>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>Título do Filme *</label>
+                <input
+                  type="text"
+                  name="titulo"
+                  placeholder="Ex: Interstellar"
+                  value={newMovie.titulo}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  required
+                />
               </div>
 
               {/* Diretor */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Diretor</label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="text"
-                    name="diretor"
-                    placeholder="Ex: Christopher Nolan"
-                    value={newMovie.diretor}
-                    onChange={handleInputChange}
-                    className="form-input"
-                  />
-                </div>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>Diretor</label>
+                <input
+                  type="text"
+                  name="diretor"
+                  placeholder="Ex: Christopher Nolan"
+                  value={newMovie.diretor}
+                  onChange={handleInputChange}
+                  className="form-input"
+                />
               </div>
 
               {/* Ano */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Ano de Lançamento *</label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="number"
-                    name="ano"
-                    min="1880"
-                    max={new Date().getFullYear() + 5}
-                    value={newMovie.ano}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    required
-                  />
-                </div>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>Ano de Lançamento *</label>
+                <input
+                  type="number"
+                  name="ano"
+                  min="1880"
+                  max={new Date().getFullYear() + 5}
+                  value={newMovie.ano}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  required
+                />
               </div>
 
               {/* Genero */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Gênero</label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="text"
-                    name="genero"
-                    placeholder="Ex: Ficção Científica, Ação"
-                    value={newMovie.genero}
-                    onChange={handleInputChange}
-                    className="form-input"
-                  />
-                </div>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>Gênero</label>
+                <input
+                  type="text"
+                  name="genero"
+                  placeholder="Ex: Ficção Científica, Ação"
+                  value={newMovie.genero}
+                  onChange={handleInputChange}
+                  className="form-input"
+                />
               </div>
             </div>
 
             {/* Imagem URL e Upload */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '20px'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: '16px'
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Fazer Upload do Cartaz</label>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>Fazer Upload do Cartaz</label>
                 <input
                   type="file"
                   accept="image/*"
@@ -316,16 +312,16 @@ export default function Home({ usuario }) {
                   style={{ padding: '8px' }}
                   disabled={isUploading}
                 />
-                {isUploading && <span style={{ fontSize: '12px', color: 'var(--primary)' }}>Enviando imagem...</span>}
-                {uploadError && <span style={{ fontSize: '12px', color: 'var(--danger)' }}>{uploadError}</span>}
+                {isUploading && <span style={{ fontSize: '11px', color: 'var(--primary)' }}>Enviando imagem...</span>}
+                {uploadError && <span style={{ fontSize: '11px', color: 'var(--danger)' }}>{uploadError}</span>}
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>URL do Cartaz</label>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>URL do Cartaz</label>
                 <input
                   type="url"
                   name="imagemUrl"
-                  placeholder="Preenchida pelo upload ou cole uma URL"
+                  placeholder="URL gerada no upload ou link externo"
                   value={newMovie.imagemUrl}
                   onChange={handleInputChange}
                   className="form-input"
@@ -335,31 +331,31 @@ export default function Home({ usuario }) {
 
             {/* Sinopse */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Sinopse do Filme</label>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>Sinopse do Filme</label>
               <textarea
                 name="sinopse"
                 placeholder="Uma breve descrição sobre a história do filme..."
                 value={newMovie.sinopse}
                 onChange={handleInputChange}
                 className="form-input"
-                style={{ minHeight: '100px', resize: 'vertical' }}
+                style={{ minHeight: '80px', resize: 'vertical' }}
               />
             </div>
 
             {/* Form feedback alerts */}
             {formError && (
-              <div className="glass-panel" style={{ padding: '12px', color: 'var(--danger)', borderColor: 'var(--danger)', fontSize: '14px', textAlign: 'center', background: 'rgba(239, 71, 111, 0.05)' }}>
+              <div className="glass-panel" style={{ padding: '10px 14px', color: 'var(--danger)', borderColor: 'var(--danger)', fontSize: '13px', background: 'rgba(255, 51, 102, 0.05)' }}>
                 {formError}
               </div>
             )}
             {formSuccess && (
-              <div className="glass-panel" style={{ padding: '12px', color: 'var(--success)', borderColor: 'var(--success)', fontSize: '14px', textAlign: 'center', background: 'rgba(6, 214, 160, 0.05)' }}>
+              <div className="glass-panel" style={{ padding: '10px 14px', color: 'var(--success)', borderColor: 'var(--success)', fontSize: '13px', background: 'rgba(0, 224, 84, 0.05)' }}>
                 {formSuccess}
               </div>
             )}
 
-            <button type="submit" className="btn-primary" style={{ justifySelf: 'start', padding: '12px 30px' }}>
-              <Plus size={18} />
+            <button type="submit" className="btn-primary" style={{ justifySelf: 'start', padding: '10px 24px', fontSize: '14px' }}>
+              <Plus size={15} />
               <span>Salvar Filme</span>
             </button>
           </form>
@@ -368,15 +364,11 @@ export default function Home({ usuario }) {
 
       {/* Grid of Movies */}
       {isLoading ? (
-        <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-secondary)', fontSize: '16px' }}>
-          Carregando catálogo CineAvalia...
+        <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-secondary)', fontSize: '15px' }}>
+          Carregando catálogo DSCboxd...
         </div>
       ) : filmes.length > 0 ? (
-        <section style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-          gap: '30px'
-        }}>
+        <section className="movie-grid">
           {filmes.map(filme => (
             <MovieCard 
               key={filme.id} 
@@ -393,11 +385,13 @@ export default function Home({ usuario }) {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '12px'
+          gap: '12px',
+          backgroundColor: 'var(--bg-secondary)',
+          border: '1px solid rgba(255, 255, 255, 0.03)'
         }}>
-          <Film size={48} />
-          <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-secondary)' }}>Nenhum filme encontrado</h3>
-          <p style={{ fontSize: '14px' }}>Tente pesquisar por outro termo ou cadastre um novo filme.</p>
+          <Film size={40} color="var(--text-muted)" />
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-secondary)' }}>Nenhum filme encontrado</h3>
+          <p style={{ fontSize: '13px' }}>Tente pesquisar por outro termo ou cadastre um novo filme.</p>
         </section>
       )}
 

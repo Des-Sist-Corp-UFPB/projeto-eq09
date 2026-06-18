@@ -1,7 +1,7 @@
 import React from 'react';
-import { Film, LogOut, User, Shield } from 'lucide-react';
+import { Film, LogOut } from 'lucide-react';
 
-export default function Navbar({ usuario, onLogout, onNavigate }) {
+export default function Navbar({ onLogout, onNavigate }) {
   return (
     <header className="glass-panel" style={{
       position: 'sticky',
@@ -12,14 +12,14 @@ export default function Navbar({ usuario, onLogout, onNavigate }) {
       borderLeft: 'none',
       borderRight: 'none',
       padding: '16px 0',
-      marginBottom: '40px'
+      marginBottom: '32px'
     }}>
       <div className="container" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        {/* Logo */}
+        {/* Logo brand: DSCboxd */}
         <div 
           onClick={() => onNavigate('home')} 
           style={{
@@ -30,104 +30,51 @@ export default function Navbar({ usuario, onLogout, onNavigate }) {
             userSelect: 'none'
           }}
         >
+          {/* Logo Icon with Letterboxd Tri-color styled ring/bg */}
           <div style={{
-            background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
-            borderRadius: '10px',
-            padding: '8px',
+            background: 'linear-gradient(135deg, var(--accent), var(--primary))',
+            borderRadius: '8px',
+            padding: '6px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 15px var(--primary-glow)'
+            boxShadow: '0 0 12px var(--primary-glow)'
           }}>
-            <Film size={24} color="#fff" />
+            <Film size={20} color="#0c0e12" />
           </div>
           <span style={{
-            fontSize: '22px',
+            fontSize: '20px',
             fontWeight: 800,
-            background: 'linear-gradient(135deg, #fff, var(--text-secondary))',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            letterSpacing: '1px'
+            color: '#fff',
+            letterSpacing: '-0.5px'
           }}>
-            Cine<span style={{
+            DSC<span style={{
               background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
-            }}>Avalia</span>
+            }}>boxd</span>
           </span>
         </div>
 
-        {/* Navigation & Profile */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          {usuario ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              {/* User Info Capsule */}
-              <div className="glass-panel" style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '6px 14px',
-                borderRadius: '50px',
-                background: 'rgba(255, 255, 255, 0.03)',
-                fontSize: '14px',
-                fontWeight: 500
-              }}>
-                {usuario.role === 'ADMIN' ? (
-                  <Shield size={16} color="var(--primary)" style={{ flexShrink: 0 }} />
-                ) : (
-                  <User size={16} color="var(--accent)" style={{ flexShrink: 0 }} />
-                )}
-                <span style={{ color: 'var(--text-primary)' }}>{usuario.username}</span>
-                {usuario.role === 'ADMIN' && (
-                  <span style={{
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    background: 'rgba(157, 78, 221, 0.2)',
-                    color: 'var(--primary)',
-                    padding: '2px 6px',
-                    borderRadius: '10px',
-                    marginLeft: '4px',
-                    border: '1px solid rgba(157, 78, 221, 0.3)'
-                  }}>
-                    ADMIN
-                  </span>
-                )}
-              </div>
-
-              {/* Logout Button */}
-              <button 
-                onClick={onLogout}
-                className="btn-secondary"
-                style={{
-                  padding: '8px 16px',
-                  fontSize: '14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                <LogOut size={16} />
-                <span>Sair</span>
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <button 
-                onClick={() => onNavigate('login')}
-                className="btn-secondary"
-                style={{ padding: '8px 18px', fontSize: '14px' }}
-              >
-                Entrar
-              </button>
-              <button 
-                onClick={() => onNavigate('register')}
-                className="btn-primary"
-                style={{ padding: '8px 18px', fontSize: '14px', boxShadow: 'none' }}
-              >
-                Criar Conta
-              </button>
-            </div>
-          )}
+        {/* Minimalist Navigation: Only Logout Button */}
+        <nav style={{ display: 'flex', alignItems: 'center' }}>
+          <button 
+            onClick={onLogout}
+            className="btn-secondary"
+            style={{
+              padding: '8px 16px',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              borderRadius: 'var(--border-radius-sm)',
+              background: 'rgba(255, 255, 255, 0.02)'
+            }}
+          >
+            <LogOut size={15} />
+            <span>Sair</span>
+          </button>
         </nav>
       </div>
     </header>

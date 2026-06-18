@@ -8,7 +8,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [submitMessage, setSubmitMessage] = useState({ text: '', type: '' });
   
-  // Detalhes locais para atualização reativa de nota
+  // Local details for reactive rating update
   const [notaMediaLocal, setNotaMediaLocal] = useState(filme.notaMedia || 0);
   const [totalAvaliacoesLocal, setTotalAvaliacoesLocal] = useState(filme.totalAvaliacoes || 0);
 
@@ -30,7 +30,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
   useEffect(() => {
     fetchComments();
     
-    // Tenta obter do localStorage se o usuário logado já avaliou este filme
+    // Gets from localStorage if current logged-in user already rated this movie
     if (usuario) {
       const storedRating = localStorage.getItem(`rating_${usuario.username}_${filme.id}`);
       if (storedRating) {
@@ -56,17 +56,16 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
       });
 
       if (response.ok) {
-        // Se for a primeira avaliação deste usuário, incrementa o total
+        // If first rating by this user, increment total local count
         const jaAvaliou = localStorage.getItem(`rating_${usuario.username}_${filme.id}`);
         if (!jaAvaliou) {
           setTotalAvaliacoesLocal(prev => prev + 1);
-          // Calcula nova média aproximada localmente
           setNotaMediaLocal(prev => {
             const sum = (prev * totalAvaliacoesLocal) + nota;
             return Math.round((sum / (totalAvaliacoesLocal + 1)) * 10) / 10;
           });
         } else {
-          // Atualiza a média
+          // Update local average
           setNotaMediaLocal(prev => {
             const oldRating = parseInt(jaAvaliou, 10);
             const sum = (prev * totalAvaliacoesLocal) - oldRating + nota;
@@ -78,7 +77,6 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
         localStorage.setItem(`rating_${usuario.username}_${filme.id}`, nota.toString());
         setSubmitMessage({ text: 'Avaliação enviada com sucesso!', type: 'success' });
         
-        // Remove a mensagem após 3 segundos
         setTimeout(() => setSubmitMessage({ text: '', type: '' }), 3000);
       } else {
         const text = await response.text();
@@ -161,36 +159,37 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'rgba(5, 5, 8, 0.85)',
-      backdropFilter: 'blur(10px)',
+      backgroundColor: 'rgba(12, 14, 18, 0.88)',
+      backdropFilter: 'blur(12px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
-      padding: '20px'
+      padding: '16px'
     }}>
       <div 
         className="glass-panel animate-fade-in"
         style={{
           width: '100%',
-          maxWidth: '900px',
-          maxHeight: '90vh',
+          maxWidth: '850px',
+          maxHeight: '92vh',
           display: 'flex',
           flexDirection: 'column',
+          backgroundColor: 'var(--bg-secondary)',
           overflow: 'hidden',
-          border: '1px solid rgba(157, 78, 221, 0.15)'
+          border: '1px solid rgba(255, 255, 255, 0.05)'
         }}
       >
         {/* Header */}
         <div style={{
-          padding: '20px 24px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          padding: '16px 24px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           background: 'rgba(255,255,255,0.01)'
         }}>
-          <h2 style={{ fontSize: '24px', fontWeight: 800 }}>Detalhes do Filme</h2>
+          <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px' }}>Detalhes do Filme</h2>
           <button 
             onClick={onClose}
             className="btn-secondary"
@@ -202,7 +201,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
               justifyContent: 'center'
             }}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
@@ -210,36 +209,26 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
         <div style={{
           overflowY: 'auto',
           padding: '24px',
-          display: 'grid',
-          gridTemplateColumns: '1fr',
+          display: 'flex',
+          flexDirection: 'column',
           gap: '24px'
         }}>
           
-          {/* Top Panel: Poster and Info */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'window.innerWidth > 600 ? "240px 1fr" : "1fr"',
-            gap: '24px',
-            alignItems: 'start',
-            '@media(min-width: 600px)': {
-              gridTemplateColumns: '240px 1fr'
-            }
-          }} className="modal-grid-top">
+          {/* Top Panel: Poster and Info (Uses CSS responsive class) */}
+          <div className="modal-grid-top">
             
             {/* Poster */}
             <div style={{
               width: '100%',
-              maxWidth: '240px',
-              margin: '0 auto',
               borderRadius: 'var(--border-radius-sm)',
               overflow: 'hidden',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
-              border: '1px solid rgba(255,255,255,0.05)'
+              boxShadow: '0 8px 25px rgba(0,0,0,0.6)',
+              border: '1px solid rgba(255,255,255,0.04)'
             }}>
               <img 
                 src={filme.imagemUrl || "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop"} 
                 alt={filme.titulo}
-                style={{ width: '100%', display: 'block', objectFit: 'cover', minHeight: '320px' }}
+                style={{ width: '100%', display: 'block', objectFit: 'cover', minHeight: '280px', maxHeight: '380px' }}
                 onError={(e) => {
                   e.target.src = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop";
                 }}
@@ -249,49 +238,55 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
             {/* Info and Synopsis */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '8px', color: '#fff' }}>
+                <h1 style={{ fontSize: '26px', fontWeight: 800, marginBottom: '8px', color: '#fff', letterSpacing: '-0.5px', lineHeight: '1.2' }}>
                   {filme.titulo}
                 </h1>
                 
                 {/* Meta row */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
                   {filme.genero && (
-                    <span className="glass-panel" style={{
-                      fontSize: '12px',
-                      padding: '4px 10px',
+                    <span style={{
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      padding: '3px 10px',
                       borderRadius: '50px',
-                      color: 'var(--accent-hover)',
+                      color: 'var(--primary)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '4px',
-                      background: 'rgba(58, 134, 200, 0.08)'
+                      background: 'rgba(0, 224, 84, 0.08)',
+                      border: '1px solid rgba(0, 224, 84, 0.15)'
                     }}>
-                      <Tag size={12} />
+                      <Tag size={10} />
                       {filme.genero}
                     </span>
                   )}
                   <span className="glass-panel" style={{
-                    fontSize: '12px',
-                    padding: '4px 10px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    padding: '3px 10px',
                     borderRadius: '50px',
                     color: 'var(--text-secondary)',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '4px'
+                    gap: '4px',
+                    background: 'rgba(255,255,255,0.02)'
                   }}>
-                    <Calendar size={12} />
+                    <Calendar size={10} />
                     {filme.ano}
                   </span>
                   <span className="glass-panel" style={{
-                    fontSize: '12px',
-                    padding: '4px 10px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    padding: '3px 10px',
                     borderRadius: '50px',
                     color: 'var(--text-secondary)',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '4px'
+                    gap: '4px',
+                    background: 'rgba(255,255,255,0.02)'
                   }}>
-                    <User size={12} />
+                    <User size={10} />
                     Dirigido por: {filme.diretor || 'Desconhecido'}
                   </span>
                 </div>
@@ -299,8 +294,8 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
 
               {/* Synopsis */}
               <div>
-                <h4 style={{ color: 'var(--text-secondary)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Sinopse</h4>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '15px', lineHeight: '1.6' }}>
+                <h4 style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '6px' }}>Sinopse</h4>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
                   {filme.sinopse || "Sem sinopse disponível para este filme."}
                 </p>
               </div>
@@ -309,26 +304,26 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '24px',
-                padding: '16px',
-                background: 'rgba(255, 255, 255, 0.02)',
+                gap: '20px',
+                padding: '14px 16px',
+                background: 'rgba(255, 255, 255, 0.01)',
                 borderRadius: 'var(--border-radius-sm)',
-                border: '1px solid rgba(255,255,255,0.03)',
-                marginTop: '8px'
+                border: '1px solid rgba(255,255,255,0.02)',
+                marginTop: '4px'
               }}>
                 <div>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '4px' }}>Nota Média</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Star size={24} style={{ color: 'var(--star-color)', fill: 'var(--star-color)' }} />
-                    <span style={{ fontSize: '28px', fontWeight: 800, color: '#fff' }}>{notaMediaLocal.toFixed(1)}</span>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '4px' }}>Nota Média</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Star size={20} style={{ color: 'var(--star-color)', fill: 'var(--star-color)' }} />
+                    <span style={{ fontSize: '24px', fontWeight: 800, color: '#fff' }}>{notaMediaLocal.toFixed(1)}</span>
                   </div>
                 </div>
                 
-                <div style={{ width: '1px', height: '40px', background: 'rgba(255,255,255,0.08)' }}></div>
+                <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.05)' }}></div>
                 
                 <div>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '4px' }}>Avaliações</span>
-                  <span style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)' }}>{totalAvaliacoesLocal}</span>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '4px' }}>Avaliações</span>
+                  <span style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>{totalAvaliacoesLocal}</span>
                 </div>
               </div>
 
@@ -339,12 +334,12 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
           {/* Messages alert */}
           {submitMessage.text && (
             <div className="glass-panel" style={{
-              padding: '12px 16px',
+              padding: '10px 14px',
               borderRadius: 'var(--border-radius-sm)',
-              backgroundColor: submitMessage.type === 'success' ? 'rgba(6, 214, 160, 0.15)' : 'rgba(239, 71, 111, 0.15)',
+              backgroundColor: submitMessage.type === 'success' ? 'rgba(0, 224, 84, 0.1)' : 'rgba(255, 51, 102, 0.1)',
               borderColor: submitMessage.type === 'success' ? 'var(--success)' : 'var(--danger)',
               color: submitMessage.type === 'success' ? 'var(--success)' : 'var(--danger)',
-              fontSize: '14px',
+              fontSize: '13px',
               fontWeight: 500,
               textAlign: 'center'
             }}>
@@ -353,10 +348,10 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
           )}
 
           {/* Interactive Rating Form */}
-          <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="glass-panel" style={{ padding: '16px 20px', display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(255,255,255,0.01)' }}>
             <div>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '4px' }}>Sua Avaliação</h3>
-              <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '2px', color: '#fff' }}>Sua Avaliação</h3>
+              <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                 {usuario ? 'Clique em uma estrela para registrar sua nota' : 'Faça login para avaliar este filme'}
               </p>
             </div>
@@ -365,11 +360,12 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
-                  size={32}
+                  size={28}
                   className={`star ${star <= userRating ? 'active' : ''}`}
                   style={{
                     cursor: usuario ? 'pointer' : 'not-allowed',
-                    fill: star <= userRating ? 'var(--star-color)' : 'none'
+                    fill: star <= userRating ? 'var(--star-color)' : 'none',
+                    stroke: star <= userRating ? 'var(--star-color)' : 'currentColor'
                   }}
                   onClick={() => handleRate(star)}
                 />
@@ -378,15 +374,15 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
           </div>
 
           {/* Comments Section */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <MessageSquare size={20} color="var(--primary)" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', color: '#fff' }}>
+              <MessageSquare size={18} color="var(--primary)" />
               Comentários ({comentarios.length})
             </h3>
 
             {/* Comment Form */}
             {usuario ? (
-              <form onSubmit={handleAddComment} style={{ display: 'flex', gap: '12px' }}>
+              <form onSubmit={handleAddComment} style={{ display: 'flex', gap: '10px' }}>
                 <input
                   type="text"
                   placeholder="Escreva um comentário sobre o filme..."
@@ -395,13 +391,13 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                   className="form-input"
                   style={{ flexGrow: 1 }}
                 />
-                <button type="submit" className="btn-primary" style={{ padding: '12px 20px', flexShrink: 0 }}>
-                  <Send size={16} />
+                <button type="submit" className="btn-primary" style={{ padding: '10px 18px', flexShrink: 0, fontSize: '13px' }}>
+                  <Send size={14} />
                   <span>Enviar</span>
                 </button>
               </form>
             ) : (
-              <div className="glass-panel" style={{ padding: '14px', textAlign: 'center', fontSize: '14px', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.01)' }}>
+              <div className="glass-panel" style={{ padding: '12px', textAlign: 'center', fontSize: '13px', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.01)' }}>
                 Você precisa estar logado para comentar.
               </div>
             )}
@@ -410,17 +406,18 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
             <div 
               className="glass-panel" 
               style={{
-                maxHeight: '300px',
+                maxHeight: '260px',
                 overflowY: 'auto',
-                padding: '16px',
+                padding: '14px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px',
-                background: 'rgba(10, 11, 14, 0.4)'
+                gap: '10px',
+                background: 'rgba(20, 24, 28, 0.4)',
+                border: '1px solid rgba(255, 255, 255, 0.03)'
               }}
             >
               {isLoadingComments ? (
-                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>Carregando comentários...</div>
+                <div style={{ textAlign: 'center', padding: '16px', color: 'var(--text-secondary)', fontSize: '13px' }}>Carregando comentários...</div>
               ) : comentarios.length > 0 ? (
                 comentarios.map((c) => (
                   <div 
@@ -428,14 +425,14 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                     style={{
                       padding: '12px',
                       borderRadius: 'var(--border-radius-sm)',
-                      background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid rgba(255,255,255,0.03)'
+                      background: 'rgba(255,255,255,0.01)',
+                      border: '1px solid rgba(255,255,255,0.02)'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--primary)' }}>@{c.username}</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>@{c.username}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
                           {new Date(c.criadoEm).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         {usuario?.role === 'ADMIN' && (
@@ -451,33 +448,33 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              opacity: 0.8,
+                              opacity: 0.7,
                               transition: 'opacity 0.2s, background-color 0.2s',
                             }}
                             title="Excluir comentário"
-                            onMouseEnter={(e) => { e.currentTarget.style.opacity = 1; e.currentTarget.style.backgroundColor = 'rgba(239, 71, 111, 0.1)'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.opacity = 0.8; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                            onMouseEnter={(e) => { e.currentTarget.style.opacity = 1; e.currentTarget.style.backgroundColor = 'rgba(255, 51, 102, 0.1)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.opacity = 0.7; e.currentTarget.style.backgroundColor = 'transparent'; }}
                           >
-                            <Trash2 size={14} />
+                            <Trash2 size={13} />
                           </button>
                         )}
                       </div>
                     </div>
-                    <p style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: '1.4' }}>{c.texto}</p>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.45' }}>{c.texto}</p>
                   </div>
                 ))
               ) : (
                 <div style={{
-                  padding: '30px 10px',
+                  padding: '24px 10px',
                   textAlign: 'center',
                   color: 'var(--text-muted)',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '8px'
+                  gap: '6px'
                 }}>
-                  <MessageCircle size={32} />
-                  <span>Seja o primeiro a comentar neste filme!</span>
+                  <MessageCircle size={28} color="var(--text-muted)" />
+                  <span style={{ fontSize: '13px' }}>Seja o primeiro a comentar neste filme!</span>
                 </div>
               )}
             </div>
