@@ -20,12 +20,14 @@ public class ComentarioService {
     private final ComentarioRepository comentarioRepository;
     private final FilmeRepository filmeRepository;
     private final UsuarioRepository usuarioRepository;
+    private final LogAuditoriaService logAuditoriaService;
 
     public ComentarioService(ComentarioRepository comentarioRepository, FilmeRepository filmeRepository,
-                             UsuarioRepository usuarioRepository) {
+                             UsuarioRepository usuarioRepository, LogAuditoriaService logAuditoriaService) {
         this.comentarioRepository = comentarioRepository;
         this.filmeRepository = filmeRepository;
         this.usuarioRepository = usuarioRepository;
+        this.logAuditoriaService = logAuditoriaService;
     }
 
     @Transactional(readOnly = true)
@@ -51,6 +53,8 @@ public class ComentarioService {
         Comentario comentario = new Comentario(usuario, filme, request.texto());
         Comentario comentarioSalvo = comentarioRepository.save(comentario);
 
+        logAuditoriaService.registrarLog(username, "COMENTAR_FILME", "Comentou no filme: " + filme.getTitulo() + " (ID: " + filmeId + ")");
+
         return new ComentarioResponse(
                 comentarioSalvo.getId(),
                 comentarioSalvo.getTexto(),
@@ -69,5 +73,7 @@ public class ComentarioService {
         }
 
         comentarioRepository.delete(comentario);
+        
+        logAuditoriaService.registrarLog("DELETAR_COMENTARIO", "Removeu o comentário (ID: " + comentarioId + ") do usuário: " + comentario.getUsuario().getUsername() + " no filme: " + comentario.getFilme().getTitulo() + " (ID: " + filmeId + ")");
     }
 }

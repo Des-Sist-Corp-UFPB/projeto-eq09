@@ -29,13 +29,16 @@ public class UsuarioService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final LogAuditoriaService logAuditoriaService;
 
     public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
-                          JwtTokenProvider tokenProvider, @Lazy AuthenticationManager authenticationManager) {
+                          JwtTokenProvider tokenProvider, @Lazy AuthenticationManager authenticationManager,
+                          LogAuditoriaService logAuditoriaService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
         this.authenticationManager = authenticationManager;
+        this.logAuditoriaService = logAuditoriaService;
     }
 
     @Override
@@ -62,20 +65,29 @@ public class UsuarioService implements UserDetailsService {
 
         Usuario usuario = new Usuario(request.username(), encodedPassword, role);
         usuarioRepository.save(usuario);
+        
+        logAuditoriaService.registrarLog(request.username(), "REGISTRO_USUARIO", "Usuário cadastrado com sucesso.");
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthResponse autenticar(AuthRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username(), request.password())
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.username(), request.password())
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = tokenProvider.generateToken(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String token = tokenProvider.generateToken(authentication);
 
-        Usuario usuario = usuarioRepository.findByUsername(request.username())
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + request.username()));
+            Usuario usuario = usuarioRepository.findByUsername(request.username())
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + request.username()));
 
-        return new AuthResponse(token, usuario.getUsername(), usuario.getRole());
+            logAuditoriaService.registrarLog(usuario.getUsername(), "LOGIN_SUCESSO", "Usuário autenticado com sucesso.");
+
+            return new AuthResponse(token, usuario.getUsername(), usuario.getRole());
+        } catch (Exception e) {
+            logAuditoriaService.registrarLog(request.username(), "LOGIN_FALHA", "Tentativa de login falhou: " + e.getMessage());
+            throw e;
+        }
     }
 }

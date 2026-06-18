@@ -16,12 +16,14 @@ public class AvaliacaoService {
     private final AvaliacaoRepository avaliacaoRepository;
     private final FilmeRepository filmeRepository;
     private final UsuarioRepository usuarioRepository;
+    private final LogAuditoriaService logAuditoriaService;
 
     public AvaliacaoService(AvaliacaoRepository avaliacaoRepository, FilmeRepository filmeRepository,
-                            UsuarioRepository usuarioRepository) {
+                            UsuarioRepository usuarioRepository, LogAuditoriaService logAuditoriaService) {
         this.avaliacaoRepository = avaliacaoRepository;
         this.filmeRepository = filmeRepository;
         this.usuarioRepository = usuarioRepository;
+        this.logAuditoriaService = logAuditoriaService;
     }
 
     @Transactional
@@ -38,5 +40,7 @@ public class AvaliacaoService {
 
         avaliacao.setNota(request.nota());
         avaliacaoRepository.save(avaliacao);
+        
+        logAuditoriaService.registrarLog(username, "AVALIAR_FILME", "Avaliou o filme: " + filme.getTitulo() + " (ID: " + filmeId + ") com nota: " + request.nota());
     }
 }

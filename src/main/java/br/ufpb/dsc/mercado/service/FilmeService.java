@@ -16,10 +16,13 @@ public class FilmeService {
 
     private final FilmeRepository filmeRepository;
     private final AvaliacaoRepository avaliacaoRepository;
+    private final LogAuditoriaService logAuditoriaService;
 
-    public FilmeService(FilmeRepository filmeRepository, AvaliacaoRepository avaliacaoRepository) {
+    public FilmeService(FilmeRepository filmeRepository, AvaliacaoRepository avaliacaoRepository,
+                        LogAuditoriaService logAuditoriaService) {
         this.filmeRepository = filmeRepository;
         this.avaliacaoRepository = avaliacaoRepository;
+        this.logAuditoriaService = logAuditoriaService;
     }
 
     @Transactional(readOnly = true)
@@ -53,6 +56,9 @@ public class FilmeService {
         );
 
         Filme filmeSalvo = filmeRepository.save(filme);
+        
+        logAuditoriaService.registrarLog("CADASTRAR_FILME", "Filme cadastrado: " + filmeSalvo.getTitulo() + " (ID: " + filmeSalvo.getId() + ")");
+        
         return toResponse(filmeSalvo);
     }
 
