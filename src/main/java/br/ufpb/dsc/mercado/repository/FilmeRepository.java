@@ -9,4 +9,5 @@ import java.util.List;
 public interface FilmeRepository extends JpaRepository<Filme, Long> {
     List<Filme> findByTituloContainingIgnoreCaseOrderByTituloAsc(String query);
     List<Filme> findAllByOrderByTituloAsc();
+    boolean existsByTitulo(String titulo);
 }
