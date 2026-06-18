@@ -62,6 +62,15 @@ public class FilmeService {
         return toResponse(filmeSalvo);
     }
 
+    @Transactional
+    public void remover(Long id) {
+        Filme filme = filmeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Filme não encontrado com o ID: " + id));
+
+        filmeRepository.delete(filme);
+        logAuditoriaService.registrarLog("DELETAR_FILME", "Filme removido: " + filme.getTitulo() + " (ID: " + id + ")");
+    }
+
     private FilmeResponse toResponse(Filme filme) {
         Double notaMedia = avaliacaoRepository.getAverageNotaByFilmeId(filme.getId());
         long totalAvaliacoes = avaliacaoRepository.countByFilmeId(filme.getId());

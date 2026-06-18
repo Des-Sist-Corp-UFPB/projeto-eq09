@@ -41,4 +41,14 @@ public class FilmeController {
         FilmeResponse filme = filmeService.cadastrar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(filme);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> remover(@PathVariable Long id) {
+        try {
+            filmeService.remover(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 }

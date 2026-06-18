@@ -203,6 +203,35 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
     }
   };
 
+  const handleDeleteMovie = async () => {
+    if (!usuario || usuario.role !== 'ADMIN') return;
+
+    if (!window.confirm(`Tem certeza de que deseja excluir permanentemente o filme "${filme.titulo}"? Esta ação removerá todas as avaliações e comentários associados.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/filmes/${filme.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${usuario.token}`
+        }
+      });
+
+      if (response.ok) {
+        setSubmitMessage({ text: 'Filme excluído com sucesso!', type: 'success' });
+        setTimeout(() => {
+          onClose(); // fecha o modal, acionando o reload na Home ou Profile
+        }, 1500);
+      } else {
+        const text = await response.text();
+        setSubmitMessage({ text: text || 'Erro ao excluir filme.', type: 'danger' });
+      }
+    } catch (err) {
+      setSubmitMessage({ text: 'Falha de rede ao excluir filme.', type: 'danger' });
+    }
+  };
+
   return (
     <div style={{
       position: 'fixed',
@@ -241,19 +270,42 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
           background: 'rgba(255,255,255,0.01)'
         }}>
           <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px' }}>Detalhes do Filme</h2>
-          <button 
-            onClick={onClose}
-            className="btn-secondary"
-            style={{
-              padding: '6px',
-              borderRadius: '50px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <X size={18} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {usuario && usuario.role === 'ADMIN' && (
+              <button 
+                onClick={handleDeleteMovie}
+                className="btn-secondary"
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '12px',
+                  borderRadius: 'var(--border-radius-sm)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  border: '1px solid rgba(255, 51, 102, 0.2)',
+                  backgroundColor: 'rgba(255, 51, 102, 0.03)',
+                  color: 'var(--danger)'
+                }}
+                title="Excluir filme"
+              >
+                <Trash2 size={13} />
+                <span>Excluir Filme</span>
+              </button>
+            )}
+            <button 
+              onClick={onClose}
+              className="btn-secondary"
+              style={{
+                padding: '6px',
+                borderRadius: '50px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Content Container */}

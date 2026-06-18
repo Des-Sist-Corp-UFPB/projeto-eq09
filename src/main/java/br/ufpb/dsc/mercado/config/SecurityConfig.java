@@ -61,8 +61,9 @@ public class SecurityConfig {
                         // Endpoint de ping público
                         .requestMatchers("/ping").permitAll()
                         
-                        // Adicionar novos filmes é de acesso exclusivo a usuários ADMIN
+                        // Adicionar e excluir filmes é de acesso exclusivo a usuários ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/filmes").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/filmes/*").hasRole("ADMIN")
                         
                         // Excluir comentários é de acesso exclusivo a usuários ADMIN
                         .requestMatchers(HttpMethod.DELETE, "/api/filmes/*/comentarios/*").hasRole("ADMIN")
