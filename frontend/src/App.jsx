@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Profile from './pages/Profile';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('login');
@@ -76,6 +77,21 @@ export default function App() {
     );
   }
 
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'home':
+        return <Home usuario={usuario} />;
+      case 'profile':
+        return <Profile usuario={usuario} onNavigate={navigateTo} />;
+      case 'login':
+        return <Login onLoginSuccess={handleLoginSuccess} onNavigate={navigateTo} />;
+      case 'register':
+        return <Register onNavigate={navigateTo} />;
+      default:
+        return <Home usuario={usuario} />;
+    }
+  };
+
   // Main flow for logged-in users: Navbar, Home (Catalog), and Footer
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--bg-primary)' }}>
@@ -84,7 +100,7 @@ export default function App() {
       
       {/* Active Page view */}
       <div style={{ flexGrow: 1 }}>
-        <Home usuario={usuario} />
+        {renderPage()}
       </div>
 
       {/* Footer */}

@@ -1,9 +1,67 @@
-import React from 'react';
-import { Star, Tag, Calendar, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, Tag, Calendar, User, Heart } from 'lucide-react';
 
-export default function MovieCard({ filme, onClick }) {
+export default function MovieCard({ filme, usuario, onClick }) {
+  const [isFavorited, setIsFavorited] = useState(false);
+
   // Nota com 1 casa decimal
   const formattedRating = filme.notaMedia ? filme.notaMedia.toFixed(1) : '0.0';
+
+  // Load and sync favorite status
+  useEffect(() => {
+    const checkFavorite = () => {
+      if (usuario) {
+        const saved = localStorage.getItem(`profile_${usuario.username}`);
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            setIsFavorited(parsed.favoritos?.includes(filme.id) || false);
+          } catch (e) {
+            console.error("Erro ao ler favoritos do card:", e);
+          }
+        }
+      }
+    };
+
+    checkFavorite();
+    
+    window.addEventListener('storage', checkFavorite);
+    return () => window.removeEventListener('storage', checkFavorite);
+  }, [usuario, filme.id]);
+
+  const handleFavoriteClick = (e) => {
+    e.stopPropagation(); // Prevent opening detail modal
+    if (!usuario) return;
+
+    const profileKey = `profile_${usuario.username}`;
+    const saved = localStorage.getItem(profileKey);
+    let profile = { foto: '', bio: '', favoritos: [] };
+
+    if (saved) {
+      try {
+        profile = JSON.parse(saved);
+      } catch (err) {}
+    }
+
+    if (!profile.favoritos) {
+      profile.favoritos = [];
+    }
+
+    let updatedFavs;
+    if (profile.favoritos.includes(filme.id)) {
+      updatedFavs = profile.favoritos.filter(id => id !== filme.id);
+      setIsFavorited(false);
+    } else {
+      updatedFavs = [...profile.favoritos, filme.id];
+      setIsFavorited(true);
+    }
+
+    profile.favoritos = updatedFavs;
+    localStorage.setItem(profileKey, JSON.stringify(profile));
+    
+    // Dispatch storage event to sync all parts of UI (navbar, profile, other cards)
+    window.dispatchEvent(new Event('storage'));
+  };
 
   return (
     <article 
@@ -58,6 +116,41 @@ export default function MovieCard({ filme, onClick }) {
             e.target.src = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop";
           }}
         />
+
+        {/* Floating Favorite Heart Button */}
+        {usuario && (
+          <button
+            onClick={handleFavoriteClick}
+            style={{
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              background: 'rgba(20, 24, 28, 0.85)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255, 255, 255, 0.06)',
+              borderRadius: '50%',
+              width: '28px',
+              height: '28px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 2,
+              boxShadow: '0 4px 10px rgba(0,0,0,0.4)',
+              transition: 'transform 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            title={isFavorited ? "Remover dos favoritos" : "Favoritar filme"}
+          >
+            <Heart 
+              size={14} 
+              color={isFavorited ? 'var(--danger)' : '#fff'} 
+              fill={isFavorited ? 'var(--danger)' : 'none'} 
+              style={{ transition: 'fill 0.2s, color 0.2s' }}
+            />
+          </button>
+        )}
 
         {/* Floating Rating Badge */}
         <div style={{

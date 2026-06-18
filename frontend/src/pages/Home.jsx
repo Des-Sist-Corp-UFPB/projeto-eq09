@@ -9,7 +9,7 @@ export default function Home({ usuario }) {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Form State for Admin Creation
   const [newMovie, setNewMovie] = useState({
     titulo: '',
@@ -62,10 +62,10 @@ export default function Home({ usuario }) {
   const fetchMovies = async (searchQuery = '') => {
     setIsLoading(true);
     try {
-      const url = searchQuery 
+      const url = searchQuery
         ? `/api/filmes?busca=${encodeURIComponent(searchQuery)}`
         : '/api/filmes';
-      
+
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
@@ -137,7 +137,7 @@ export default function Home({ usuario }) {
 
   return (
     <main className="container animate-fade-in" style={{ paddingBottom: '40px' }}>
-      
+
       {/* Banner */}
       <section style={{
         textAlign: 'center',
@@ -156,7 +156,7 @@ export default function Home({ usuario }) {
           lineHeight: '1.15',
           letterSpacing: '-0.5px'
         }}>
-          Descubra Histórias Extraordinárias
+          Desde filmes nota zero até os nota 100 no IMDB!
         </h1>
         <p style={{
           color: 'var(--text-secondary)',
@@ -164,7 +164,7 @@ export default function Home({ usuario }) {
           maxWidth: '520px',
           lineHeight: '1.5'
         }}>
-          Explore o catálogo oficial, registre suas notas e compartilhe opiniões sobre as maiores produções cinematográficas do mundo.
+          Registre as notas dos seus filmes favoritos no DCSboxd!
         </p>
       </section>
 
@@ -180,9 +180,9 @@ export default function Home({ usuario }) {
       }}>
         {/* Search Input Container */}
         <div style={{ position: 'relative', flexGrow: 1, minWidth: '260px', maxWidth: '400px' }}>
-          <input 
-            type="text" 
-            placeholder="Pesquisar filmes por título..." 
+          <input
+            type="text"
+            placeholder="Pesquisar filmes por título..."
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             className="form-input"
@@ -198,14 +198,14 @@ export default function Home({ usuario }) {
 
         {/* Add Movie Button (ADMIN Only) */}
         {usuario && usuario.role === 'ADMIN' && (
-          <button 
+          <button
             onClick={() => setShowAddForm(!showAddForm)}
             className="btn-primary"
             style={{
               padding: '10px 20px',
               fontSize: '14px',
-              background: showAddForm 
-                ? 'linear-gradient(135deg, var(--danger), #ff1a53)' 
+              background: showAddForm
+                ? 'linear-gradient(135deg, var(--danger), #ff1a53)'
                 : 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
               color: showAddForm ? '#fff' : '#0c0e12',
               boxShadow: showAddForm ? 'none' : '0 4px 12px var(--primary-glow)'
@@ -219,8 +219,8 @@ export default function Home({ usuario }) {
 
       {/* Admin Add Movie Form Panel */}
       {showAddForm && (
-        <section 
-          className="glass-panel animate-fade-in" 
+        <section
+          className="glass-panel animate-fade-in"
           style={{
             padding: '24px',
             marginBottom: '32px',
@@ -370,10 +370,10 @@ export default function Home({ usuario }) {
       ) : filmes.length > 0 ? (
         <section className="movie-grid">
           {filmes.map(filme => (
-            <MovieCard 
-              key={filme.id} 
-              filme={filme} 
-              onClick={(m) => setSelectedMovie(m)} 
+            <MovieCard
+              key={filme.id}
+              filme={filme}
+              onClick={(m) => setSelectedMovie(m)}
             />
           ))}
         </section>
@@ -397,16 +397,16 @@ export default function Home({ usuario }) {
 
       {/* Movie Details Modal Overlay */}
       {selectedMovie && (
-        <MovieDetailModal 
-          filme={selectedMovie} 
-          usuario={usuario} 
+        <MovieDetailModal
+          filme={selectedMovie}
+          usuario={usuario}
           onClose={() => {
             setSelectedMovie(null);
             fetchMovies(busca); // Recarrega os filmes para atualizar as médias na Home
-          }} 
+          }}
         />
       )}
-      
+
     </main>
   );
 }

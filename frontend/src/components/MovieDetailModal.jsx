@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { X, Star, MessageSquare, Send, Calendar, Tag, User, MessageCircle, Trash2 } from 'lucide-react';
+import { X, Star, MessageSquare, Send, Calendar, Tag, User, MessageCircle, Trash2, Heart } from 'lucide-react';
 
 export default function MovieDetailModal({ filme, usuario, onClose }) {
   const [comentarios, setComentarios] = useState([]);
   const [novoComentario, setNovoComentario] = useState('');
   const [userRating, setUserRating] = useState(0);
+  const [isFavorited, setIsFavorited] = useState(false);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [submitMessage, setSubmitMessage] = useState({ text: '', type: '' });
   
@@ -38,6 +39,56 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
       }
     }
   }, [filme.id, usuario]);
+
+  useEffect(() => {
+    const checkFavorite = () => {
+      if (usuario) {
+        const saved = localStorage.getItem(`profile_${usuario.username}`);
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            setIsFavorited(parsed.favoritos?.includes(filme.id) || false);
+          } catch (e) {}
+        }
+      }
+    };
+    checkFavorite();
+    window.addEventListener('storage', checkFavorite);
+    return () => window.removeEventListener('storage', checkFavorite);
+  }, [filme.id, usuario]);
+
+  const handleFavoriteToggle = () => {
+    if (!usuario) return;
+
+    const profileKey = `profile_${usuario.username}`;
+    const saved = localStorage.getItem(profileKey);
+    let profile = { foto: '', bio: '', favoritos: [] };
+
+    if (saved) {
+      try {
+        profile = JSON.parse(saved);
+      } catch (err) {}
+    }
+
+    if (!profile.favoritos) {
+      profile.favoritos = [];
+    }
+
+    let updatedFavs;
+    if (profile.favoritos.includes(filme.id)) {
+      updatedFavs = profile.favoritos.filter(id => id !== filme.id);
+      setIsFavorited(false);
+    } else {
+      updatedFavs = [...profile.favoritos, filme.id];
+      setIsFavorited(true);
+    }
+
+    profile.favoritos = updatedFavs;
+    localStorage.setItem(profileKey, JSON.stringify(profile));
+    
+    // Dispatch event to sync other views
+    window.dispatchEvent(new Event('storage'));
+  };
 
   const handleRate = async (nota) => {
     if (!usuario) {
@@ -356,20 +407,51 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
               </p>
             </div>
             
-            <div className="star-rating">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  size={28}
-                  className={`star ${star <= userRating ? 'active' : ''}`}
-                  style={{
-                    cursor: usuario ? 'pointer' : 'not-allowed',
-                    fill: star <= userRating ? 'var(--star-color)' : 'none',
-                    stroke: star <= userRating ? 'var(--star-color)' : 'currentColor'
-                  }}
-                  onClick={() => handleRate(star)}
-                />
-              ))}
+            <div className="star-rating" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={28}
+                    className={`star ${star <= userRating ? 'active' : ''}`}
+                    style={{
+                      cursor: usuario ? 'pointer' : 'not-allowed',
+                      fill: star <= userRating ? 'var(--star-color)' : 'none',
+                      stroke: star <= userRating ? 'var(--star-color)' : 'currentColor'
+                    }}
+                    onClick={() => handleRate(star)}
+                  />
+                ))}
+              </div>
+
+              {usuario && (
+                <>
+                  <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.06)' }}></div>
+                  <button
+                    onClick={handleFavoriteToggle}
+                    className="btn-secondary"
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: '12px',
+                      borderRadius: 'var(--border-radius-sm)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      border: '1px solid rgba(255,255,255,0.05)',
+                      backgroundColor: 'rgba(255,255,255,0.01)',
+                      color: isFavorited ? 'var(--danger)' : 'var(--text-secondary)'
+                    }}
+                    title={isFavorited ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                  >
+                    <Heart 
+                      size={14} 
+                      fill={isFavorited ? 'var(--danger)' : 'none'} 
+                      color={isFavorited ? 'var(--danger)' : 'currentColor'} 
+                    />
+                    <span>{isFavorited ? 'Favoritado' : 'Favoritar'}</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
