@@ -75,6 +75,9 @@ public class SecurityConfig {
                         // Diário de filmes exige autenticação
                         .requestMatchers("/api/diario/**").authenticated()
                         
+                        // Watchlist exige autenticação
+                        .requestMatchers("/api/watchlist/**").authenticated()
+                        
                         // Qualquer outra requisição deve estar autenticada
                         .anyRequest().authenticated()
                 );

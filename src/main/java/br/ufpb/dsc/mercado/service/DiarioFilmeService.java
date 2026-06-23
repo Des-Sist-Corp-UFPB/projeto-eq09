@@ -9,6 +9,7 @@ import br.ufpb.dsc.mercado.repository.AvaliacaoRepository;
 import br.ufpb.dsc.mercado.repository.DiarioFilmeRepository;
 import br.ufpb.dsc.mercado.repository.FilmeRepository;
 import br.ufpb.dsc.mercado.repository.UsuarioRepository;
+import br.ufpb.dsc.mercado.repository.WatchlistRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,17 +24,20 @@ public class DiarioFilmeService {
     private final UsuarioRepository usuarioRepository;
     private final FilmeRepository filmeRepository;
     private final AvaliacaoRepository avaliacaoRepository;
+    private final WatchlistRepository watchlistRepository;
     private final LogAuditoriaService logAuditoriaService;
 
     public DiarioFilmeService(DiarioFilmeRepository diarioFilmeRepository,
                               UsuarioRepository usuarioRepository,
                               FilmeRepository filmeRepository,
                               AvaliacaoRepository avaliacaoRepository,
+                              WatchlistRepository watchlistRepository,
                               LogAuditoriaService logAuditoriaService) {
         this.diarioFilmeRepository = diarioFilmeRepository;
         this.usuarioRepository = usuarioRepository;
         this.filmeRepository = filmeRepository;
         this.avaliacaoRepository = avaliacaoRepository;
+        this.watchlistRepository = watchlistRepository;
         this.logAuditoriaService = logAuditoriaService;
     }
 
@@ -44,6 +48,9 @@ public class DiarioFilmeService {
 
         Filme filme = filmeRepository.findById(filmeId)
                 .orElseThrow(() -> new IllegalArgumentException("Filme não encontrado: " + filmeId));
+
+        // Remove da watchlist se existir (Regra de exclusividade de estado)
+        watchlistRepository.deleteByUsuarioIdAndFilmeId(usuario.getId(), filme.getId());
 
         Optional<DiarioFilme> diarioOpt = diarioFilmeRepository.findByUsuarioIdAndFilmeId(usuario.getId(), filme.getId());
 
