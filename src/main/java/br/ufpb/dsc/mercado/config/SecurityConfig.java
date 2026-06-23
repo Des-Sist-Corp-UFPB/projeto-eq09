@@ -72,6 +72,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/filmes/*/avaliar").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/filmes/*/comentarios").authenticated()
                         
+                        // Diário de filmes exige autenticação
+                        .requestMatchers("/api/diario/**").authenticated()
+                        
                         // Qualquer outra requisição deve estar autenticada
                         .anyRequest().authenticated()
                 );

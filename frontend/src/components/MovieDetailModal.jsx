@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { X, Star, MessageSquare, Send, Calendar, Tag, User, MessageCircle, Trash2, Heart } from 'lucide-react';
+import { X, Star, MessageSquare, Send, Calendar, Tag, User, MessageCircle, Trash2, Heart, Eye } from 'lucide-react';
 
 export default function MovieDetailModal({ filme, usuario, onClose }) {
   const [comentarios, setComentarios] = useState([]);
   const [novoComentario, setNovoComentario] = useState('');
   const [userRating, setUserRating] = useState(0);
   const [isFavorited, setIsFavorited] = useState(false);
+  const [isWatched, setIsWatched] = useState(false);
+  const [observacaoAssistido, setObservacaoAssistido] = useState('');
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [submitMessage, setSubmitMessage] = useState({ text: '', type: '' });
   
@@ -28,8 +30,28 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
     }
   };
 
+  const checkWatchedStatus = async () => {
+    if (usuario) {
+      try {
+        const response = await fetch(`/api/diario/filmes/${filme.id}/verificar`, {
+          headers: {
+            'Authorization': `Bearer ${usuario.token}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setIsWatched(data.assistido);
+          setObservacaoAssistido(data.observacao || '');
+        }
+      } catch (err) {
+        console.error("Erro ao verificar status de assistido:", err);
+      }
+    }
+  };
+
   useEffect(() => {
     fetchComments();
+    checkWatchedStatus();
     
     // Gets from localStorage if current logged-in user already rated this movie
     if (usuario) {
@@ -88,6 +110,76 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
     
     // Dispatch event to sync other views
     window.dispatchEvent(new Event('storage'));
+  };
+
+  const handleWatchedToggle = async () => {
+    if (!usuario) {
+      setSubmitMessage({ text: 'Você precisa entrar na sua conta para registrar no diário!', type: 'danger' });
+      return;
+    }
+
+    if (isWatched) {
+      try {
+        const response = await fetch(`/api/diario/filmes/${filme.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${usuario.token}`
+          }
+        });
+        if (response.ok) {
+          setIsWatched(false);
+          setObservacaoAssistido('');
+          setSubmitMessage({ text: 'Filme removido do diário!', type: 'success' });
+          setTimeout(() => setSubmitMessage({ text: '', type: '' }), 3000);
+        } else {
+          setSubmitMessage({ text: 'Erro ao remover filme do diário.', type: 'danger' });
+        }
+      } catch (err) {
+        setSubmitMessage({ text: 'Falha de rede ao remover do diário.', type: 'danger' });
+      }
+    } else {
+      try {
+        const response = await fetch(`/api/diario/filmes/${filme.id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${usuario.token}`
+          },
+          body: JSON.stringify({ observacao: observacaoAssistido })
+        });
+        if (response.ok) {
+          setIsWatched(true);
+          setSubmitMessage({ text: 'Filme adicionado ao diário!', type: 'success' });
+          setTimeout(() => setSubmitMessage({ text: '', type: '' }), 3000);
+        } else {
+          setSubmitMessage({ text: 'Erro ao marcar filme no diário.', type: 'danger' });
+        }
+      } catch (err) {
+        setSubmitMessage({ text: 'Falha de rede ao adicionar ao diário.', type: 'danger' });
+      }
+    }
+  };
+
+  const handleSaveObservacao = async () => {
+    if (!usuario) return;
+    try {
+      const response = await fetch(`/api/diario/filmes/${filme.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
+        },
+        body: JSON.stringify({ observacao: observacaoAssistido })
+      });
+      if (response.ok) {
+        setSubmitMessage({ text: 'Observação salva com sucesso!', type: 'success' });
+        setTimeout(() => setSubmitMessage({ text: '', type: '' }), 3000);
+      } else {
+        setSubmitMessage({ text: 'Erro ao salvar observação.', type: 'danger' });
+      }
+    } catch (err) {
+      setSubmitMessage({ text: 'Falha de rede ao salvar observação.', type: 'danger' });
+    }
   };
 
   const handleRate = async (nota) => {
@@ -502,10 +594,67 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                     />
                     <span>{isFavorited ? 'Favoritado' : 'Favoritar'}</span>
                   </button>
+
+                  <button
+                    onClick={handleWatchedToggle}
+                    className="btn-secondary"
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: '12px',
+                      borderRadius: 'var(--border-radius-sm)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      border: '1px solid rgba(255,255,255,0.05)',
+                      backgroundColor: 'rgba(255,255,255,0.01)',
+                      color: isWatched ? 'var(--primary)' : 'var(--text-secondary)',
+                      borderColor: isWatched ? 'rgba(0, 224, 84, 0.2)' : 'rgba(255,255,255,0.05)'
+                    }}
+                    title={isWatched ? "Remover dos assistidos" : "Marcar como assistido"}
+                  >
+                    <Eye 
+                      size={14} 
+                      color={isWatched ? 'var(--primary)' : 'currentColor'} 
+                    />
+                    <span>{isWatched ? 'Assistido' : 'Marcar Assistido'}</span>
+                  </button>
                 </>
               )}
             </div>
           </div>
+
+          {/* Campo de Observação do Diário */}
+          {usuario && isWatched && (
+            <div className="glass-panel" style={{ 
+              padding: '16px 20px', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '10px', 
+              backgroundColor: 'rgba(255,255,255,0.01)', 
+              marginTop: '-8px' 
+            }}>
+              <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                Observação do Diário (Opcional)
+              </label>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <input
+                  type="text"
+                  placeholder="Ex: Assistido com amigos, no cinema, ótima direção de arte..."
+                  value={observacaoAssistido}
+                  onChange={(e) => setObservacaoAssistido(e.target.value)}
+                  className="form-input"
+                  style={{ flexGrow: 1, fontSize: '13px', padding: '10px 14px' }}
+                />
+                <button
+                  onClick={handleSaveObservacao}
+                  className="btn-primary"
+                  style={{ padding: '10px 18px', fontSize: '13px', flexShrink: 0 }}
+                >
+                  Salvar
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Comments Section */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>

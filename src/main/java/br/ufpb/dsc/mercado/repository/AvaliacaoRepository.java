@@ -17,4 +17,10 @@ public interface AvaliacaoRepository extends JpaRepository<Avaliacao, Long> {
     Double getAverageNotaByFilmeId(@Param("filmeId") Long filmeId);
 
     long countByFilmeId(Long filmeId);
+
+    long countByUsuarioId(Long usuarioId);
+
+    @Query("SELECT AVG(a.nota) FROM Avaliacao a WHERE a.usuario.id = :usuarioId")
+    Double getAverageNotaByUsuarioId(@Param("usuarioId") Long usuarioId);
 }
+

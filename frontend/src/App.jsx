@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Diario from './pages/Diario';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('login');
@@ -83,6 +84,8 @@ export default function App() {
         return <Home usuario={usuario} />;
       case 'profile':
         return <Profile usuario={usuario} onNavigate={navigateTo} />;
+      case 'diario':
+        return <Diario usuario={usuario} />;
       case 'login':
         return <Login onLoginSuccess={handleLoginSuccess} onNavigate={navigateTo} />;
       case 'register':

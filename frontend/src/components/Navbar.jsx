@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Film, LogOut, User } from 'lucide-react';
+import { Film, LogOut, User, Calendar } from 'lucide-react';
 
 export default function Navbar({ usuario, onLogout, onNavigate }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -86,6 +86,35 @@ export default function Navbar({ usuario, onLogout, onNavigate }) {
 
         {/* User Profile Dropdown Nav Trigger */}
         <nav style={{ display: 'flex', alignItems: 'center', zIndex: 110 }}>
+          {usuario && (
+            <button
+              onClick={() => onNavigate('diario')}
+              className="btn-secondary"
+              style={{
+                padding: '6px 14px',
+                fontSize: '13px',
+                borderRadius: '20px',
+                border: '1px solid rgba(255, 255, 255, 0.04)',
+                background: 'rgba(255, 255, 255, 0.01)',
+                marginRight: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                color: 'var(--text-secondary)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#fff';
+                e.currentTarget.style.borderColor = 'rgba(0, 224, 84, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--text-secondary)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.04)';
+              }}
+            >
+              <Calendar size={14} color="var(--primary)" />
+              <span>Diário</span>
+            </button>
+          )}
           {usuario && (
             <div style={{ position: 'relative' }}>
               {/* Trigger click panel */}
@@ -192,6 +221,40 @@ export default function Navbar({ usuario, onLogout, onNavigate }) {
                     >
                       <User size={14} color="var(--primary)" />
                       <span>Ver Perfil</span>
+                    </button>
+                    
+                    {/* Meu Diário */}
+                    <button 
+                      onClick={() => {
+                        onNavigate('diario');
+                        setIsOpen(false);
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 16px',
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--text-secondary)',
+                        textAlign: 'left',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        transition: 'var(--transition-smooth)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = '#fff';
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = 'var(--text-secondary)';
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <Calendar size={14} color="var(--primary)" />
+                      <span>Meu Diário</span>
                     </button>
                     
                     <div style={{ height: '1px', background: 'rgba(255,255,255,0.04)', margin: '4px 0' }} />
