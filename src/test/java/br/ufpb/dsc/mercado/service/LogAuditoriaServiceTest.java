@@ -109,4 +109,59 @@ class LogAuditoriaServiceTest {
             log.getIp() == null
         ));
     }
+
+    @Test
+    void testRegistrarLog_WithNullAuthentication() {
+        SecurityContextHolder.clearContext();
+        logAuditoriaService.registrarLog("TEST_ACTION", "Details");
+        verify(logRepository, times(1)).save(argThat(log -> log.getUsuario() == null));
+    }
+
+    @Test
+    void testRegistrarLog_WithUnauthenticatedUser() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.isAuthenticated()).thenReturn(false);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        logAuditoriaService.registrarLog("TEST_ACTION", "Details");
+        verify(logRepository, times(1)).save(argThat(log -> log.getUsuario() == null));
+    }
+
+    @Test
+    void testRegistrarLog_WithProxyClientIP() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getHeader("X-Forwarded-For")).thenReturn(null);
+        when(request.getHeader("Proxy-Client-IP")).thenReturn("192.168.1.100");
+        ServletRequestAttributes attributes = new ServletRequestAttributes(request);
+        RequestContextHolder.setRequestAttributes(attributes);
+
+        logAuditoriaService.registrarLog("TEST_ACTION", "Details");
+        verify(logRepository, times(1)).save(argThat(log -> "192.168.1.100".equals(log.getIp())));
+    }
+
+    @Test
+    void testRegistrarLog_WithWLProxyClientIP() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getHeader("X-Forwarded-For")).thenReturn(null);
+        when(request.getHeader("Proxy-Client-IP")).thenReturn("");
+        when(request.getHeader("WL-Proxy-Client-IP")).thenReturn("192.168.1.200");
+        ServletRequestAttributes attributes = new ServletRequestAttributes(request);
+        RequestContextHolder.setRequestAttributes(attributes);
+
+        logAuditoriaService.registrarLog("TEST_ACTION", "Details");
+        verify(logRepository, times(1)).save(argThat(log -> "192.168.1.200".equals(log.getIp())));
+    }
+
+    @Test
+    void testRegistrarLog_WithSingleIpNoComma() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getHeader("X-Forwarded-For")).thenReturn("192.168.1.50");
+        ServletRequestAttributes attributes = new ServletRequestAttributes(request);
+        RequestContextHolder.setRequestAttributes(attributes);
+
+        logAuditoriaService.registrarLog("TEST_ACTION", "Details");
+        verify(logRepository, times(1)).save(argThat(log -> "192.168.1.50".equals(log.getIp())));
+    }
 }
