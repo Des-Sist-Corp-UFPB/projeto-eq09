@@ -5,8 +5,8 @@
 | **Data** | 2026-06-25 |
 | **Repositório** | https://github.com/des-sist-corp-ufpb/projeto-eq09 |
 | **Aplicação** | https://eq09.dsc.rodrigor.com |
-| **Período de atividade** | 2026-06-24 → 2026-06-24 |
-| **Total de commits** (sem merges) | 1 |
+| **Período de atividade** | 2026-06-24 → 2026-06-25 |
+| **Total de commits** (sem merges, branch main) | 2 |
 | **Integrantes** | Iury Gabriel Andrade Da Silva (@Iurygab14) |
 
 ---
@@ -97,9 +97,14 @@
 
 ### Resumo
 
-| Usuário | Commits | % commits | Linhas adicionadas | Linhas no código atual | % código atual |
-|---------|---------|-----------|-------------------|----------------------|----------------|
-| Iury Gabriel Andrade Da Silva (@Iurygab14) | 1 | 100% | 19.353 | 4.727 | 100% |
+| Usuário | Commits (main) | Commits (GitHub API) | Linhas adicionadas | Linhas no código atual | % código atual |
+|---------|---------------|---------------------|-------------------|----------------------|----------------|
+| Iury Gabriel Andrade Da Silva (@Iurygab14) | 1 | **7** ⚠️ | 19.353 | 4.727 | 100% |
+| *(sem login GitHub)* | 1 | 50% | — | — | — |
+
+> **⚠️ Divergência entre commits locais e GitHub API:**
+> - **@Iurygab14**: 1 commit(s) na branch `main` vs **7** registrados na API GitHub (commits em branches não mergeadas ou absorvidos via squash-merge sem preservação de autoria).
+>
 
 ### Contribuição por Camada
 
