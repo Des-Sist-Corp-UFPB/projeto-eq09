@@ -6,7 +6,7 @@
 | **Repositório** | https://github.com/des-sist-corp-ufpb/projeto-eq09 |
 | **Aplicação** | https://eq09.dsc.rodrigor.com |
 | **Período de atividade** | 2026-06-24 → 2026-06-25 |
-| **Total de commits** (sem merges, branch main) | 2 |
+| **Total de commits** (sem merges, branch main) | 3 |
 | **Integrantes** | Iury Gabriel Andrade Da Silva (@Iurygab14) |
 
 ---
@@ -81,7 +81,7 @@
 | Aspecto | Status | Observação |
 |---------|--------|-----------|
 | Arquitetura em camadas | ✅ | controller=✅  service=✅  repository=✅ |
-| Testes automatizados | ✅ | 12 arquivo(s) de teste |
+| Testes automatizados | ✅ | 13 Java, 0 JS/TS, 0 Python |
 | Migrations versionadas | ✅ | 4 migration(s) |
 | Logging | ❌ | não detectado |
 | Autenticação / Segurança | ✅ | Spring Security / JWT / decorator detectado |
@@ -100,7 +100,7 @@
 | Usuário | Commits (main) | Commits (GitHub API) | Linhas adicionadas | Linhas no código atual | % código atual |
 |---------|---------------|---------------------|-------------------|----------------------|----------------|
 | Iury Gabriel Andrade Da Silva (@Iurygab14) | 1 | **7** ⚠️ | 19.353 | 4.727 | 100% |
-| *(sem login GitHub)* | 1 | 50% | — | — | — |
+| *(sem login GitHub)* | 2 | 67% | — | — | — |
 
 > **⚠️ Divergência entre commits locais e GitHub API:**
 > - **@Iurygab14**: 1 commit(s) na branch `main` vs **7** registrados na API GitHub (commits em branches não mergeadas ou absorvidos via squash-merge sem preservação de autoria).
