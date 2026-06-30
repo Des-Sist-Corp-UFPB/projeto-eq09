@@ -1,343 +1,205 @@
-# Sistema Mercado — Projeto Base DSC/UFPB
+# DSCboxd
 
-Projeto base (boilerplate) para a disciplina **Desenvolvimento de Sistemas Corporativos**.
-
-**Professor**: Rodrigo Rebouças | **UFPB — Campus IV**
+O **DSCboxd** é um sistema web inspirado na rede social Letterboxd, projetado para o gerenciamento, acompanhamento e avaliação de filmes. O projeto foi desenvolvido como trabalho prático para a disciplina **Desenvolvimento de Sistemas Corporativos (DSC)** do curso de Sistemas de Informação da Universidade Federal da Paraíba (UFPB), Campus IV.
 
 ---
 
-## Tecnologias
+## Funcionalidades
 
-| Camada | Tecnologia |
-|--------|-----------|
-| Backend | Java 21 + Spring Boot 3.4.5 |
-| Templates | Thymeleaf + HTMX 2.0 |
-| Frontend | Bootstrap 5.3 |
-| Banco | PostgreSQL 16 |
-| Migrações | Flyway 11 |
-| Segurança | Spring Security 6 |
-| Build | Maven 3.9 |
-| CI/CD | GitHub Actions |
+O sistema conta com as seguintes funcionalidades reais implementadas:
 
----
-
-## Guia de Instalação para Alunos
-
-### Passo 1 — Instale o Java 21
-
-O projeto requer Java 21. Recomendamos o **Eclipse Temurin** (distribuição gratuita da Adoptium).
-
-**Windows / macOS / Linux:**
-1. Acesse https://adoptium.net/temurin/releases/?version=21
-2. Baixe o instalador para seu sistema operacional
-3. Execute o instalador e siga as instruções
-
-**Verificar se está correto:**
-```bash
-java -version
-# Esperado: openjdk version "21.x.x" ...
-```
-
-> **Dica para Windows:** durante a instalação, marque a opção *"Add to PATH"* e *"Set JAVA_HOME"*.
+* **Cadastro e Login de Usuários:** Registro e autenticação de contas através do sistema com diferenciação de permissões baseadas em perfis (`USER` e `ADMIN`).
+* **Autenticação JWT:** Acesso aos endpoints protegidos garantido através de JSON Web Tokens (JWT) trafegados no cabeçalho das requisições de forma *stateless*.
+* **Catálogo de Filmes:** Exibição completa da lista de filmes disponíveis para todos os usuários cadastrados e visitantes.
+* **Busca de Filmes:** Pesquisa dinâmica de títulos de filmes integrada diretamente no catálogo.
+* **Avaliação de Filmes:** Usuários autenticados podem avaliar os filmes atribuindo notas de 1 a 5 estrelas.
+* **Comentários:** Possibilidade de publicar opiniões sobre os filmes e, para o perfil administrador (`ADMIN`), excluir comentários indesejados.
+* **Diário de Filmes Assistidos:** Registro cronológico de filmes assistidos por cada usuário, permitindo marcar a data da visualização e adicionar anotações/observações pessoais sobre a sessão. Também fornece estatísticas individuais dos filmes assistidos.
+* **Watchlist (Quero Assistir):** Gerenciamento de uma lista de filmes que o usuário pretende assistir no futuro, permitindo adicionar, remover, consultar e visualizar estatísticas gerais da sua lista.
+* **Perfil do Usuário:** Interface no frontend para visualização de estatísticas consolidadas do usuário (total de filmes assistidos, itens salvos na watchlist, etc.).
+* **Área Administrativa:** Funcionalidades de gerenciamento exclusivas para usuários com perfil `ADMIN` para cadastrar novos filmes, remover filmes existentes do catálogo e remover comentários inadequados.
+* **Upload de Imagens dos Filmes:** Integração para o envio de imagens de capa de filmes no cadastro administrativo, com armazenamento direto em serviço de Object Storage (S3/MinIO).
 
 ---
 
-### Passo 2 — Instale o Maven
-
-O Maven é a ferramenta de build do projeto.
-
-**macOS (com Homebrew):**
-```bash
-brew install maven
-```
-
-**Windows:**
-1. Acesse https://maven.apache.org/download.cgi
-2. Baixe o arquivo `apache-maven-3.x.x-bin.zip`
-3. Extraia para uma pasta (ex.: `C:\maven`)
-4. Adicione `C:\maven\bin` à variável de ambiente `PATH`
-
-**Linux (Ubuntu/Debian):**
-```bash
-sudo apt install maven
-```
-
-**Verificar:**
-```bash
-mvn -version
-# Esperado: Apache Maven 3.x.x
-```
-
----
-
-### Passo 3 — Instale o Docker Desktop
-
-O Docker sobe o banco de dados PostgreSQL sem precisar instalar nada manualmente.
-
-1. Acesse https://www.docker.com/products/docker-desktop/
-2. Baixe e instale o Docker Desktop para seu sistema
-3. Abra o Docker Desktop e aguarde ele inicializar (ícone na barra de tarefas)
-
-**Verificar:**
-```bash
-docker -v
-# Esperado: Docker version 27.x.x ...
-```
-
-> **Importante:** o Docker Desktop deve estar **em execução** sempre que você for rodar o projeto.
-
----
-
-### Passo 4 — Clone o repositório
-
-```bash
-git clone <URL-DO-REPOSITÓRIO>
-cd base_projeto
-```
-
-> Substitua `<URL-DO-REPOSITÓRIO>` pela URL fornecida pelo professor.
-
----
-
-### Passo 5 — Execute o projeto
-
-Você tem duas opções. **Recomendamos a Opção A para a primeira execução.**
-
-#### Opção A: Tudo com Docker (mais simples)
-
-Um único comando sobe o banco, a aplicação e o Adminer (interface web do banco):
-
-```bash
-docker compose -f docker/docker-compose.dev.yml up --build
-```
-
-Aguarde as mensagens de inicialização. Quando aparecer algo como:
-```
-Started MercadoApplication in X.XXX seconds
-```
-...a aplicação está pronta.
-
-#### Opção B: Banco no Docker + aplicação local (recomendado para desenvolvimento)
-
-Esta opção permite editar o código e ver as mudanças mais rápido:
-
-```bash
-# Terminal 1 — sobe o banco de dados
-docker compose -f docker/docker-compose.dev.yml up postgres adminer
-
-# Terminal 2 — roda a aplicação (em outro terminal, na mesma pasta)
-mvn spring-boot:run
-```
-
----
-
-### Passo 6 — Acesse no browser
-
-| O que | Endereço |
-|-------|----------|
-| Aplicação | http://localhost:8080 |
-| Login | usuário: `admin` / senha: `admin123` |
-| Adminer (banco) | http://localhost:8888 |
-| Health check | http://localhost:8080/actuator/health |
-
----
-
-### Parando o projeto
-
-```bash
-# Parar a aplicação: Ctrl+C no terminal onde está rodando
-
-# Parar os containers Docker:
-docker compose -f docker/docker-compose.dev.yml down
-```
-
----
-
-## Solução de Problemas Comuns
-
-### "Port 8080 already in use"
-Outra aplicação está usando a porta 8080. Para liberar:
-```bash
-# macOS / Linux
-lsof -ti:8080 | xargs kill
-
-# Windows (PowerShell)
-netstat -ano | findstr :8080
-# Anote o PID da última coluna e execute:
-taskkill /PID <número-do-pid> /F
-```
-
-### "Cannot connect to the Docker daemon"
-O Docker Desktop não está em execução. Abra o aplicativo Docker Desktop e aguarde inicializar.
-
-### "Connection refused" ao banco de dados
-O container do PostgreSQL ainda não subiu. Aguarde alguns segundos e tente novamente. Você pode verificar com:
-```bash
-docker compose -f docker/docker-compose.dev.yml ps
-# O container "mercado-postgres-dev" deve estar com status "healthy"
-```
-
-### Erro de compilação Java
-Verifique se o Java 21 está sendo usado pelo Maven:
-```bash
-mvn -version
-# A linha "Java version:" deve mostrar 21.x.x
-```
-Se mostrar outra versão, configure a variável `JAVA_HOME` apontando para o Java 21.
-
-### Flyway: "Found non-empty schema(s) with no schema history table"
-O banco existe mas foi criado sem as migrations. Apague os dados e recomece:
-```bash
-docker compose -f docker/docker-compose.dev.yml down -v
-docker compose -f docker/docker-compose.dev.yml up postgres
-```
-
----
-
-## Testes
-
-```bash
-# Rodar todos os testes (requer Docker em execução — usa Testcontainers)
-mvn test
-
-# Rodar com relatório de cobertura (JaCoCo)
-mvn verify
-# Relatório: abra o arquivo target/site/jacoco/index.html no browser
-```
-
----
-
-## Análise de Segurança (SAST)
-
-```bash
-# SpotBugs + FindSecBugs + OWASP Dependency Check
-mvn verify -Psecurity
-
-# Trivy: scan de vulnerabilidades no filesystem
-docker compose -f docker/docker-compose.dev.yml --profile scan up trivy
-
-# Verificar dependências desatualizadas
-mvn versions:display-dependency-updates -Pversions
-```
-
-Veja `docs/SECURITY.md` para detalhes.
-
----
-
-## Configurando o Deploy Automático (GitHub Actions)
-
-O projeto inclui um pipeline de CI/CD em `.github/workflows/deploy.yml` que:
-- roda os testes automaticamente a cada `push` na branch `main`
-- executa análise de segurança (SAST) no código e nas dependências
-- constrói a imagem Docker de produção e faz o deploy no servidor da disciplina
-
-Para ativar o deploy, você precisa configurar **dois secrets** e uma **variável** no seu repositório GitHub.
-
----
-
-### Secret 1 — Chave SSH de deploy (`SSH_DEPLOY_KEY`)
-
-O servidor da disciplina (`dsc.rodrigor.com`) já está preparado para receber deploys.
-A chave SSH que autoriza o acesso está disponível na página da disciplina:
-
-**Acesse: https://gd.dsc.rodrigor.com** e copie a chave SSH privada disponibilizada pelo professor.
-
-Depois, adicione no seu repositório:
-
-1. No GitHub, acesse seu repositório → **Settings**
-2. No menu lateral: **Secrets and variables → Actions**
-3. Clique em **New repository secret**
-4. Nome: `SSH_DEPLOY_KEY`
-5. Valor: cole a chave privada copiada do portal (o texto completo, incluindo as linhas `-----BEGIN...` e `-----END...`)
-6. Clique em **Add secret**
-
----
-
-### Secret 2 — Chave da API do NVD (`NVD_API_KEY`)
-
-#### O que é o NVD?
-
-**NVD** significa *National Vulnerability Database* — é o banco de dados oficial do governo americano (NIST) que cataloga todas as vulnerabilidades de segurança conhecidas em softwares. Cada vulnerabilidade recebe um identificador chamado **CVE** (ex.: CVE-2024-12345) e uma nota de gravidade chamada **CVSS** (de 0 a 10).
-
-O **OWASP Dependency Check** (uma das ferramentas de segurança do projeto) consulta esse banco para verificar se as bibliotecas que o seu projeto usa possuem vulnerabilidades conhecidas.
-
-#### Por que preciso de uma chave?
-
-Sem a chave, o download do banco de dados NVD é muito lento (pode levar 20+ minutos no CI/CD, ou até falhar por timeout). Com a chave gratuita, o download é feito via API e leva menos de 2 minutos.
-
-#### Como obter (gratuito, leva ~1 minuto)
-
-1. Acesse https://nvd.nist.gov/developers/request-an-api-key
-2. Preencha seu e-mail institucional (use o e-mail da UFPB se possível)
-3. Marque a caixa de uso não-comercial
-4. Clique em **Submit**
-5. Acesse seu e-mail — você receberá a chave em segundos
-
-#### Adicionando ao repositório
-
-1. No GitHub: **Settings → Secrets and variables → Actions**
-2. Clique em **New repository secret**
-3. Nome: `NVD_API_KEY`
-4. Valor: cole a chave recebida por e-mail
-5. Clique em **Add secret**
-
-> **Sem a chave ainda?** O pipeline funciona mesmo sem ela, mas o OWASP Dependency Check
-> pode demorar muito ou falhar por timeout. Configure assim que possível.
-
----
-
-### Variável — Nome da imagem Docker (`APP_IMAGE`)
-
-O pipeline publica a imagem Docker no GitHub Container Registry (GHCR) com o nome do seu repositório. Você não precisa configurar isso manualmente — o workflow usa `${{ github.repository }}` para montar o nome automaticamente.
-
-Mas o arquivo `.env` no servidor precisa saber qual imagem usar. O script de deploy atualiza isso automaticamente na primeira execução.
-
----
-
-### Verificando se o deploy funcionou
-
-Após configurar os secrets e fazer um `push` na branch `main`:
-
-1. No GitHub, clique na aba **Actions**
-2. Você verá o workflow **"Build & Deploy"** em execução
-3. Ele tem 3 etapas: **Testes e SAST → Build e push → Deploy em produção**
-4. Se tudo der certo, a aplicação estará disponível em `https://dsc.rodrigor.com`
-
-Se alguma etapa falhar, clique nela para ver os logs detalhados.
+## Tecnologias Utilizadas
+
+O ecossistema do DSCboxd foi desenvolvido utilizando as seguintes tecnologias:
+
+### Backend
+* **Linguagem:** Java 21
+* **Framework:** Spring Boot 3.4.5 (Spring MVC, Spring Security, Spring Data JPA)
+* **Segurança:** Autenticação baseada em JWT (Java JWT - Auth0)
+* **Migrations:** Flyway (controle versionado do banco de dados)
+* **Ferramenta de Build:** Maven 3.9+
+* **Testes:** JUnit 5, Mockito e Testcontainers (banco de testes dinâmico)
+
+### Frontend
+* **Tecnologia Principal:** React + Vite (JavaScript)
+* **Estilização:** CSS Vanilla com design moderno e responsivo
+* **Biblioteca de Ícones:** Lucide React
+
+### Infraestrutura e Serviços
+* **Banco de Dados:** PostgreSQL 16
+* **Armazenamento de Arquivos (Object Storage):** AWS SDK S3 + MinIO (Local) / AWS S3 (Nuvem)
+* **Containerização:** Docker e Docker Compose
 
 ---
 
 ## Estrutura do Projeto
 
+A organização dos diretórios do projeto segue a arquitetura de divisões de responsabilidade:
+
 ```
-base_projeto/
-├── .github/workflows/
-│   └── deploy.yml           # Pipeline CI/CD (GitHub Actions)
-├── src/main/java/br/ufpb/dsc/mercado/
-│   ├── config/              # Configurações (Security, GlobalModelAttributes, etc.)
-│   ├── controller/          # Controllers HTTP + HTMX
-│   ├── domain/              # Entidades JPA
-│   ├── dto/                 # Data Transfer Objects (Records)
-│   ├── exception/           # Exceções de domínio
-│   ├── repository/          # Interfaces Spring Data JPA
-│   └── service/             # Lógica de negócio
+projeto-eq09/
+├── src/main/java/br/ufpb/dsc/mercado/        # Código-fonte do Backend Java
+│   ├── config/                               # Classes de configuração (Security, CORS, S3, DataInitializer)
+│   │   └── security/                         # Filtro de Autenticação JWT e Provider de Tokens
+│   ├── controller/                           # Controllers HTTP / Endpoints REST expostos
+│   ├── domain/                               # Entidades JPA que representam as tabelas do banco
+│   ├── dto/                                  # Records Java para transferência de dados (Request/Response)
+│   ├── exception/                            # Centralização do tratamento de erros e exceções
+│   ├── repository/                           # Interfaces Spring Data JPA para comunicação com BD
+│   └── service/                              # Camada de lógica de negócio e transações
 ├── src/main/resources/
-│   ├── db/migration/        # Scripts Flyway (V1__, V2__, ...)
-│   └── templates/           # Templates Thymeleaf
-├── docker/                  # Dockerfiles + docker-compose
-├── docs/                    # Documentação técnica
-├── CLAUDE.md                # Memória para Claude Code
-└── pom.xml
+│   └── db/migration/                         # Scripts SQL Flyway de versionamento do banco (V1__ a V4__)
+├── frontend/                                 # Código-fonte do Frontend React
+│   ├── public/                               # Arquivos estáticos
+│   └── src/                                  # Componentes, Páginas (Home, Diario, Watchlist, Profile, etc.) e Estilos
+├── docker/                                   # Arquivos Dockerfile e docker-compose para ambiente local e produção
+├── docs/                                     # Documentações adicionais do projeto
+└── cobertura/                                # Relatórios gerados para cobertura de testes
 ```
 
 ---
 
-## Para Alunos: Adaptando o Boilerplate
+## Como Executar
 
-1. **Renomear** a entidade `Produto` para sua entidade principal
-2. **Criar migration** Flyway com a nova estrutura da tabela (`src/main/resources/db/migration/V2__...sql`)
-3. **Atualizar** Repository, Service, Controller e templates seguindo os mesmos padrões
-4. **Manter** a estrutura de pacotes e convenções (ver `docs/CONVENTIONS.md`)
-5. **Nunca editar** migrations já aplicadas — sempre criar uma nova (`V3__`, `V4__`, ...)
+Para subir e rodar o projeto localmente com todo o seu ambiente configurado, siga as etapas abaixo:
 
-> Dúvidas? Consulte a documentação em `docs/` ou o professor.
+### Pré-requisitos
+* Docker Desktop instalado e em execução.
+* JDK 21 instalado localmente.
+* Maven 3.9+ (caso queira executar a aplicação backend fora do Docker).
+* Node.js v20+ e npm.
+
+### Passo 1: Subir a Infraestrutura (Banco + Storage)
+Suba os containers do PostgreSQL, MinIO (S3 local) e Adminer executando na raiz do projeto:
+```bash
+docker compose -f docker/docker-compose.dev.yml up postgres adminer minio
+```
+
+### Passo 2: Inicializar o Backend
+Com a infraestrutura ativa, você pode iniciar o backend de duas formas:
+
+**Opção A: Localmente via Maven**
+Configure a variável `JAVA_HOME` para o JDK 21 de sua máquina e execute o Maven:
+```bash
+# Windows (PowerShell)
+$env:JAVA_HOME="C:\caminho\para\seu\jdk-21"
+$env:PATH="$env:JAVA_HOME\bin;$env:PATH"
+& ".\.maven\apache-maven-3.9.9\bin\mvn.cmd" spring-boot:run
+
+# Linux / macOS
+export JAVA_HOME="/caminho/para/seu/jdk-21"
+export PATH="$JAVA_HOME/bin:$PATH"
+mvn spring-boot:run
+```
+
+**Opção B: Via Docker Compose (Completo)**
+Caso prefira subir tudo em containers, execute apenas:
+```bash
+docker compose -f docker/docker-compose.dev.yml up
+```
+
+### Passo 3: Inicializar o Frontend
+Em um novo terminal, entre na pasta do frontend, instale as dependências e execute o servidor de desenvolvimento:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Passo 4: Acessar a Aplicação
+* **Frontend:** [http://localhost:5173](http://localhost:5173)
+* **Backend API:** [http://localhost:8080](http://localhost:8080)
+* **Adminer (Visualizar Banco):** [http://localhost:8888](http://localhost:8888) (Servidor: `postgres`, Banco: `mercado_dev`, Usuário: `mercado`, Senha: `mercado123`)
+* **MinIO Console (S3 local):** [http://localhost:9001](http://localhost:9001) (Usuário: `eq09`, Senha: `01nXvfGS3LUOABjTxleE0Jy7`)
+
+*Conta inicial para teste (Seed padrão):*
+* **Usuário Comum:** `user` / `user123`
+* **Administrador:** `admin` / `admin123`
+
+---
+
+## Cobertura de Testes
+
+O projeto conta com uma suíte de testes unitários e de integração abrangente para garantir o correto funcionamento das regras de negócio.
+
+* **Total de Testes Automatizados:** 91 testes executados
+* **Cobertura de linhas:** **85,46%** (341 de 399 linhas)
+* **Cobertura de branches:** **87,50%** (56 de 64 branches)
+* **Resultado de Build:** `BUILD SUCCESS`
+
+> O relatório de cobertura detalhado gerado pelo JaCoCo está disponível no repositório no caminho:
+> **[cobertura/jacoco/index.html](file:///c:/Users/Windows%2011/projeto-eq09/cobertura/jacoco/index.html)**
+
+---
+
+## Log de Auditoria
+
+O sistema de auditoria registra e rastreia ações críticas efetuadas na plataforma para fins de monitoramento e segurança.
+
+* **O que é auditado:**
+  * Registro de novos usuários (`REGISTRO_USUARIO`)
+  * Tentativas de login bem-sucedidas (`LOGIN_SUCESSO`) e falhas de login (`LOGIN_FALHA`)
+  * Cadastro de novos filmes (`CADASTRAR_FILME`) e sua exclusão (`DELETAR_FILME`)
+  * Criação de novos comentários (`COMENTAR_FILME`) e remoção de comentários por administradores (`DELETAR_COMENTARIO`)
+  * Avaliação de filmes (`AVALIAR_FILME`)
+  * Marcação (`MARCAR_ASSISTIDO`) e desmarcação (`REMOVER_ASSISTIDO`) de filmes assistidos no diário
+  * Adição (`ADICIONAR_WATCHLIST`) e remoção (`REMOVER_WATCHLIST`) de títulos da watchlist
+* **Onde os logs são armazenados:** Na tabela `log_auditoria` do banco de dados PostgreSQL. Ela é mapeada através da entidade [LogAuditoria.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/domain/LogAuditoria.java), registrando: identificador único, nome do usuário (se autenticado), a ação executada, detalhes adicionais em texto, IP de origem da requisição e data/hora (`criado_em`).
+* **Como foi implementado:** A lógica foi centralizada no serviço [LogAuditoriaService.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/service/LogAuditoriaService.java). Os métodos de persistência do log são configurados com `@Transactional(propagation = Propagation.REQUIRES_NEW)` para garantir que as entradas de auditoria sejam gravadas em uma transação isolada, persistindo mesmo que a transação principal que causou o log sofra rollback. O IP é resolvido a partir dos atributos de requisição via `RequestContextHolder` (suportando cabeçalhos de proxy como `X-Forwarded-For`) e o nome do usuário ativo é obtido via `SecurityContextHolder`.
+* **Classes envolvidas:**
+  * [LogAuditoria.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/domain/LogAuditoria.java) (Entidade de banco)
+  * [LogAuditoriaRepository.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/repository/LogAuditoriaRepository.java) (Interface de acesso a dados)
+  * [LogAuditoriaService.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/service/LogAuditoriaService.java) (Serviço agregador de lógica de auditoria)
+  * Classes de negócio que invocam o registro:
+    * [UsuarioService.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/service/UsuarioService.java)
+    * [FilmeService.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/service/FilmeService.java)
+    * [ComentarioService.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/service/ComentarioService.java)
+    * [AvaliacaoService.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/service/AvaliacaoService.java)
+    * [DiarioFilmeService.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/service/DiarioFilmeService.java)
+    * [WatchlistService.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/service/WatchlistService.java)
+
+---
+
+## Integração com Serviço Externo
+
+Para o armazenamento persistente de imagens de capas de filmes e mídias do sistema, a aplicação integra-se com serviços de Object Storage compatíveis com S3.
+
+* **Serviço externo:** **MinIO** em ambiente de desenvolvimento local e **AWS S3** em produção.
+* **Para que é utilizado:** Upload e hospedagem estática de imagens de capa de filmes enviadas pelo painel administrativo.
+* **Como funciona:**
+  1. O administrador envia a imagem via formulário HTTP `POST` para o endpoint `/api/upload`.
+  2. O [UploadController.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/controller/UploadController.java) intercepta a requisição, valida o arquivo (garantindo que não é vazio e pertence aos tipos MIME permitidos: JPEG, PNG, GIF, WebP).
+  3. O arquivo é encaminhado ao [S3StorageService.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/service/S3StorageService.java), que gera uma chave única (UUID) para evitar conflitos, configura a permissão do objeto para leitura pública (`PUBLIC_READ`) e faz o envio à API S3.
+  4. O serviço retorna a URL pública gerada para a imagem, que é armazenada na entidade do filme.
+* **Classes envolvidas:**
+  * [UploadController.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/controller/UploadController.java) (Interceptador REST da requisição)
+  * [S3Config.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/config/S3Config.java) (Configurador do `S3Client` da AWS SDK)
+  * [S3StorageService.java](file:///c:/Users/Windows%2011/projeto-eq09/src/main/java/br/ufpb/dsc/mercado/service/S3StorageService.java) (Serviço que gerencia o upload do arquivo para o bucket)
+* **Variáveis de ambiente de configuração (sem expor credenciais):**
+  * `AWS_S3_ENDPOINT`: URL da API do serviço S3 (MinIO local ou AWS endpoint).
+  * `AWS_S3_PUBLIC_ENDPOINT`: URL pública para acesso direto de visualização dos arquivos no navegador.
+  * `AWS_S3_BUCKET`: Nome do bucket utilizado para armazenar os arquivos.
+  * `AWS_S3_ACCESS_KEY`: ID da chave de acesso para o S3.
+  * `AWS_S3_SECRET_KEY`: Chave de acesso secreta do S3.
+  * `AWS_S3_REGION`: Região geográfica onde o bucket está hospedado.
+
+---
+
+## Equipe
+
+* **Iury Gabriel Andrade da Silva** (@Iurygab14)
+* **Luciano Junior** (@lucianovdsjr)
