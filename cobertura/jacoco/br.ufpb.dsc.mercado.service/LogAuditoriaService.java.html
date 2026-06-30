@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogAuditoriaService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mercado</a> &gt; <a href="index.source.html" class="el_package">br.ufpb.dsc.mercado.service</a> &gt; <span class="el_source">LogAuditoriaService.java</span></div><h1>LogAuditoriaService.java</h1><pre class="source lang-java linenums">package br.ufpb.dsc.mercado.service;
+
+import br.ufpb.dsc.mercado.domain.LogAuditoria;
+import br.ufpb.dsc.mercado.repository.LogAuditoriaRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+@Service
+public class LogAuditoriaService {
+
+    private final LogAuditoriaRepository logRepository;
+
+<span class="fc" id="L19">    public LogAuditoriaService(LogAuditoriaRepository logRepository) {</span>
+<span class="fc" id="L20">        this.logRepository = logRepository;</span>
+<span class="fc" id="L21">    }</span>
+
+    /**
+     * Records an audit log resolving the username and IP address automatically from the context.
+     * Uses Propagation.REQUIRES_NEW to ensure logs are saved even if the outer transaction rolls back.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void registrarLog(String acao, String detalhes) {
+<span class="fc" id="L29">        String username = getCurrentUsername();</span>
+<span class="fc" id="L30">        String ip = getClientIp();</span>
+        
+<span class="fc" id="L32">        LogAuditoria log = new LogAuditoria(username, acao, detalhes, ip);</span>
+<span class="fc" id="L33">        logRepository.save(log);</span>
+<span class="fc" id="L34">    }</span>
+
+    /**
+     * Records an audit log with an explicitly specified username.
+     * Useful for registration or login failure scenarios.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void registrarLog(String username, String acao, String detalhes) {
+<span class="fc" id="L42">        String ip = getClientIp();</span>
+        
+<span class="fc" id="L44">        LogAuditoria log = new LogAuditoria(username, acao, detalhes, ip);</span>
+<span class="fc" id="L45">        logRepository.save(log);</span>
+<span class="fc" id="L46">    }</span>
+
+    private String getCurrentUsername() {
+<span class="fc" id="L49">        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();</span>
+<span class="fc bfc" id="L50" title="All 6 branches covered.">        if (authentication != null &amp;&amp; authentication.isAuthenticated() &amp;&amp; !&quot;anonymousUser&quot;.equals(authentication.getPrincipal())) {</span>
+<span class="fc" id="L51">            return authentication.getName();</span>
+        }
+<span class="fc" id="L53">        return null;</span>
+    }
+
+    private String getClientIp() {
+<span class="fc" id="L57">        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (attributes != null) {</span>
+<span class="fc" id="L59">            HttpServletRequest request = attributes.getRequest();</span>
+<span class="fc" id="L60">            String ip = request.getHeader(&quot;X-Forwarded-For&quot;);</span>
+<span class="pc bpc" id="L61" title="2 of 6 branches missed.">            if (ip == null || ip.isEmpty() || &quot;unknown&quot;.equalsIgnoreCase(ip)) {</span>
+<span class="fc" id="L62">                ip = request.getHeader(&quot;Proxy-Client-IP&quot;);</span>
+            }
+<span class="pc bpc" id="L64" title="2 of 6 branches missed.">            if (ip == null || ip.isEmpty() || &quot;unknown&quot;.equalsIgnoreCase(ip)) {</span>
+<span class="fc" id="L65">                ip = request.getHeader(&quot;WL-Proxy-Client-IP&quot;);</span>
+            }
+<span class="pc bpc" id="L67" title="2 of 6 branches missed.">            if (ip == null || ip.isEmpty() || &quot;unknown&quot;.equalsIgnoreCase(ip)) {</span>
+<span class="fc" id="L68">                ip = request.getRemoteAddr();</span>
+            }
+            // If comma-separated (multiple proxies), get the first one
+<span class="pc bpc" id="L71" title="1 of 4 branches missed.">            if (ip != null &amp;&amp; ip.contains(&quot;,&quot;)) {</span>
+<span class="fc" id="L72">                ip = ip.split(&quot;,&quot;)[0].trim();</span>
+            }
+<span class="fc" id="L74">            return ip;</span>
+        }
+<span class="fc" id="L76">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

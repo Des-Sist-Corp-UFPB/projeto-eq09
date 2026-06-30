@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilmeService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mercado</a> &gt; <a href="index.source.html" class="el_package">br.ufpb.dsc.mercado.service</a> &gt; <span class="el_source">FilmeService.java</span></div><h1>FilmeService.java</h1><pre class="source lang-java linenums">package br.ufpb.dsc.mercado.service;
+
+import br.ufpb.dsc.mercado.domain.Filme;
+import br.ufpb.dsc.mercado.dto.FilmeRequest;
+import br.ufpb.dsc.mercado.dto.FilmeResponse;
+import br.ufpb.dsc.mercado.repository.AvaliacaoRepository;
+import br.ufpb.dsc.mercado.repository.FilmeRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class FilmeService {
+
+    private final FilmeRepository filmeRepository;
+    private final AvaliacaoRepository avaliacaoRepository;
+    private final LogAuditoriaService logAuditoriaService;
+
+    public FilmeService(FilmeRepository filmeRepository, AvaliacaoRepository avaliacaoRepository,
+<span class="fc" id="L22">                        LogAuditoriaService logAuditoriaService) {</span>
+<span class="fc" id="L23">        this.filmeRepository = filmeRepository;</span>
+<span class="fc" id="L24">        this.avaliacaoRepository = avaliacaoRepository;</span>
+<span class="fc" id="L25">        this.logAuditoriaService = logAuditoriaService;</span>
+<span class="fc" id="L26">    }</span>
+
+    @Transactional(readOnly = true)
+    public List&lt;FilmeResponse&gt; listarTodos(String query) {
+        List&lt;Filme&gt; filmes;
+<span class="fc bfc" id="L31" title="All 4 branches covered.">        if (query != null &amp;&amp; !query.isBlank()) {</span>
+<span class="fc" id="L32">            filmes = filmeRepository.findByTituloContainingIgnoreCaseOrderByTituloAsc(query);</span>
+        } else {
+<span class="fc" id="L34">            filmes = filmeRepository.findAllByOrderByTituloAsc();</span>
+        }
+
+<span class="fc" id="L37">        return filmes.stream().map(this::toResponse).collect(Collectors.toList());</span>
+    }
+
+    @Transactional(readOnly = true)
+    public FilmeResponse obterPorId(Long id) {
+<span class="fc" id="L42">        Filme filme = filmeRepository.findById(id)</span>
+<span class="fc" id="L43">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Filme não encontrado com o ID: &quot; + id));</span>
+<span class="fc" id="L44">        return toResponse(filme);</span>
+    }
+
+    @Transactional
+    public FilmeResponse cadastrar(FilmeRequest request) {
+<span class="fc" id="L49">        Filme filme = new Filme(</span>
+<span class="fc" id="L50">                request.titulo(),</span>
+<span class="fc" id="L51">                request.diretor(),</span>
+<span class="fc" id="L52">                request.ano(),</span>
+<span class="fc" id="L53">                request.sinopse(),</span>
+<span class="fc" id="L54">                request.genero(),</span>
+<span class="fc" id="L55">                request.imagemUrl()</span>
+        );
+
+<span class="fc" id="L58">        Filme filmeSalvo = filmeRepository.save(filme);</span>
+        
+<span class="fc" id="L60">        logAuditoriaService.registrarLog(&quot;CADASTRAR_FILME&quot;, &quot;Filme cadastrado: &quot; + filmeSalvo.getTitulo() + &quot; (ID: &quot; + filmeSalvo.getId() + &quot;)&quot;);</span>
+        
+<span class="fc" id="L62">        return toResponse(filmeSalvo);</span>
+    }
+
+    @Transactional
+    public void remover(Long id) {
+<span class="fc" id="L67">        Filme filme = filmeRepository.findById(id)</span>
+<span class="fc" id="L68">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Filme não encontrado com o ID: &quot; + id));</span>
+
+<span class="fc" id="L70">        filmeRepository.delete(filme);</span>
+<span class="fc" id="L71">        logAuditoriaService.registrarLog(&quot;DELETAR_FILME&quot;, &quot;Filme removido: &quot; + filme.getTitulo() + &quot; (ID: &quot; + id + &quot;)&quot;);</span>
+<span class="fc" id="L72">    }</span>
+
+    private FilmeResponse toResponse(Filme filme) {
+<span class="fc" id="L75">        Double notaMedia = avaliacaoRepository.getAverageNotaByFilmeId(filme.getId());</span>
+<span class="fc" id="L76">        long totalAvaliacoes = avaliacaoRepository.countByFilmeId(filme.getId());</span>
+
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (notaMedia != null) {</span>
+<span class="fc" id="L79">            notaMedia = Math.round(notaMedia * 10.0) / 10.0;</span>
+        } else {
+<span class="fc" id="L81">            notaMedia = 0.0;</span>
+        }
+
+<span class="fc" id="L84">        return new FilmeResponse(</span>
+<span class="fc" id="L85">                filme.getId(),</span>
+<span class="fc" id="L86">                filme.getTitulo(),</span>
+<span class="fc" id="L87">                filme.getDiretor(),</span>
+<span class="fc" id="L88">                filme.getAno(),</span>
+<span class="fc" id="L89">                filme.getSinopse(),</span>
+<span class="fc" id="L90">                filme.getGenero(),</span>
+<span class="fc" id="L91">                filme.getImagemUrl(),</span>
+                notaMedia,
+<span class="fc" id="L93">                totalAvaliacoes,</span>
+<span class="fc" id="L94">                filme.getCriadoEm()</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
