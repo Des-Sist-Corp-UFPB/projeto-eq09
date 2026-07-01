@@ -23,7 +23,9 @@
 
 ## 3. Cobertura de Testes (≥ 85%)
 
-✅ **Atendido** — 86% (JaCoCo) jacoco (relatório em `cobertura/`, 61 arquivo(s)).
+✅ **Atendido** — linhas 85.5% (instruções 86.9% · ramos 87.5%) [JaCoCo] (relatório em `cobertura/`, 61 arquivo(s)).
+
+> Critério: **cobertura de linhas** ≥ 85% (conforme a orientação). As demais métricas (instruções/ramos) são informativas.
 
 > Observação: a cobertura é lida do relatório commitado pela equipe; não é recalculada nesta avaliação.
 
