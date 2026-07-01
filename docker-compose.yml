@@ -49,11 +49,9 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DATABASE_USERNAME:-eq09}
       SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD:-yzdS9dSAaE3YP63gDZmE}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
-      # Variáveis genéricas adicionais
       DATABASE_URL: jdbc:postgresql://postgres:5432/${DATABASE_NAME:-eq09}
       DATABASE_USERNAME: ${DATABASE_USERNAME:-eq09}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-yzdS9dSAaE3YP63gDZmE}
-      # Configurações do Object Storage S3 / MinIO
       AWS_S3_ENDPOINT: ${AWS_S3_ENDPOINT:-http://minio:9000}
       AWS_S3_PUBLIC_ENDPOINT: ${AWS_S3_PUBLIC_ENDPOINT:-https://s3.dsc.rodrigor.com}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET:-eq09}

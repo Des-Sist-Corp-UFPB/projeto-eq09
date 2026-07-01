@@ -197,6 +197,57 @@ Para o armazenamento persistente de imagens de capas de filmes e mídias do sist
   * `AWS_S3_SECRET_KEY`: Chave de acesso secreta do S3.
   * `AWS_S3_REGION`: Região geográfica onde o bucket está hospedado.
 
+## Teste de Carga e Performance
+
+Para avaliar o comportamento da aplicação sob estresse, tempo de resposta e capacidade de processamento concorrente, foi realizada uma suíte de testes de carga.
+
+### Ferramenta e Ambiente de Teste
+* **Ferramenta:** [k6](https://k6.io)
+* **Ambiente:** Aplicação executada localmente via Docker Compose.
+* **URL Base de Teste:** `http://localhost:8109`
+
+### Cenários Simulados
+Os testes foram estruturados em três fluxos paralelos que simulam o comportamento de uso real na plataforma:
+
+1. **Navegação Pública (Anônima):**
+   * `GET /ping` (Saúde da aplicação)
+   * `GET /api/filmes` (Visualização do catálogo)
+   * `GET /api/filmes?busca=Inception` (Pesquisa de filmes)
+   * `GET /api/filmes/{id}` (Visualização de detalhes de filmes)
+   * `GET /api/filmes/{id}/comentarios` (Leitura de opiniões de outros usuários)
+
+2. **Fluxo do Usuário Autenticado:**
+   * `POST /api/auth/login` (Autenticação do usuário e captura de token JWT)
+   * `GET /api/diario/estatisticas` (Acesso às estatísticas do diário de filmes)
+   * `GET /api/watchlist` (Listagem dos filmes salvos na watchlist)
+   * `GET /api/watchlist/total` (Totalizadores da watchlist)
+   * `GET /api/watchlist/filmes/{id}/verificar` (Verificação se um filme específico está na watchlist)
+   * `POST /api/watchlist/filmes/{id}` (Adição temporária na watchlist)
+   * `DELETE /api/watchlist/filmes/{id}` (Remoção da watchlist para limpeza e conservação de dados)
+
+3. **Fluxo Administrativo:**
+   * `POST /api/auth/login` (Autenticação como administrador)
+   * `POST /api/filmes` (Cadastro de novo filme no catálogo)
+   * `GET /api/filmes/{id}` (Obtenção dos detalhes do filme criado)
+   * `DELETE /api/filmes/{id}` (Remoção imediata do filme cadastrado para limpeza de dados)
+
+### Resultados Obtidos
+Durante a simulação de carga progressiva, foram medidos os seguintes indicadores de sucesso:
+* **Capacidade Máxima:** Sucesso na execução estável com até **74 usuários virtuais (VUs) simultâneos**.
+* **Ponto de Saturação:** Saturação apresentada a partir de aproximadamente **75 VUs**, quando o tempo de resposta aumentou drasticamente (cerca de 30 segundos).
+* **Tempo de Resposta (p95):** **13,71 ms** (95% das requisições foram atendidas em menos de 13,71 ms antes de atingir a saturação).
+* **Taxa de Erro HTTP:** **0%** de requisições falhas.
+* **Checks:** **100%** de aprovação nas asserções de validação (incluindo validação de status HTTP, presença do token JWT nas credenciais e integridade estrutural das respostas).
+* **Thresholds:** Todas as metas de qualidade configuradas foram plenamente atendidas.
+
+### Análise de Gargalos e Pontos de Melhoria
+A partir da saturação identificada sob carga de 75 VUs simultâneos, foram elencadas melhorias arquiteturais para otimizar o desempenho do sistema:
+* **Otimização de Consultas SQL:** Refatoração de queries do JPA/Hibernate para evitar problemas clássicos de carregamento excessivo ou consultas redundantes.
+* **Criação de Índices:** Mapeamento de índices específicos para as colunas mais utilizadas em cláusulas de filtros de busca no banco PostgreSQL.
+* **Ajuste de Connection Pool:** Sintonia fina do pool de conexões (HikariCP) do Spring Boot e configurações do PostgreSQL para suportar maior concorrência.
+* **Mecanismos de Cache:** Uso de cache para dados frequentemente acessados (como o catálogo de filmes).
+* **Escalabilidade Horizontal:** Distribuição da carga entre múltiplas instâncias da aplicação Spring Boot através de um balanceador de carga.
+
 ---
 
 ## Equipe
