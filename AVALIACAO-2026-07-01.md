@@ -16,9 +16,7 @@
 
 ## 2. Integração com Serviço Externo
 
-- ✅ **AWS S3** — declarado no README e comprovado no código (15 ocorrência(s)).
-  - Evidência: `src/main/java/br/ufpb/dsc/mercado/config/S3Config.java:9:import software.amazon.awssdk.services.s3.S3Client;`
-- ✅ **MinIO** — declarado no README e comprovado no código (18 ocorrência(s)).
+- ✅ **Object Storage (S3/MinIO)** — declarado no README e comprovado no código (36 ocorrência(s)).
   - Evidência: `docker-compose.yml:56:      # Configurações do Object Storage S3 / MinIO`
 
 ---
