@@ -8,11 +8,7 @@ on:
 jobs:
   build-and-deploy:
     name: Build, push e deploy
-<<<<<<< HEAD
-    runs-on: self-hosted
-=======
     runs-on: [self-hosted, dsc-selfhosted]
->>>>>>> f9c3ef85686926a80b5c092dd1d743808be87001
     permissions:
       contents: read
       packages: write
