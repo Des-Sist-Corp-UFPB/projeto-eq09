@@ -4,17 +4,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,15 +27,9 @@ class PingControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    private DataSource dataSource;
-
     @Test
     void testPingEndpointReturnsOkWhenDatabaseIsConnected() throws Exception {
-        Connection mockConnection = mock(Connection.class);
-        when(mockConnection.isValid(anyInt())).thenReturn(true);
-        when(dataSource.getConnection()).thenReturn(mockConnection);
-
+        // Uses the real H2 database configured in application-test.yml
         mockMvc.perform(get("/ping"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ok"))
@@ -44,20 +38,59 @@ class PingControllerTest {
     }
 
     @Test
-    void testPingEndpointReturnsServiceUnavailableWhenDatabaseConnectionFails() throws Exception {
-        when(dataSource.getConnection()).thenThrow(new SQLException("Connection timed out"));
+    void testPingEndpointReturnsServiceUnavailableWhenDatabaseConnectionFails() {
+        DataSource mockDataSource = createMockDataSource(true, null);
+        PingController controller = new PingController(mockDataSource);
 
-        mockMvc.perform(get("/ping"))
-                .andExpect(status().isServiceUnavailable());
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                controller::ping
+        );
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatusCode());
     }
 
     @Test
-    void testPingEndpointReturnsServiceUnavailableWhenConnectionIsInvalid() throws Exception {
-        Connection mockConnection = mock(Connection.class);
-        when(mockConnection.isValid(anyInt())).thenReturn(false);
-        when(dataSource.getConnection()).thenReturn(mockConnection);
+    void testPingEndpointReturnsServiceUnavailableWhenConnectionIsInvalid() {
+        Connection mockConnection = createMockConnection(false);
+        DataSource mockDataSource = createMockDataSource(false, mockConnection);
+        PingController controller = new PingController(mockDataSource);
 
-        mockMvc.perform(get("/ping"))
-                .andExpect(status().isServiceUnavailable());
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                controller::ping
+        );
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, exception.getStatusCode());
+    }
+
+    private Connection createMockConnection(boolean isValid) {
+        return (Connection) java.lang.reflect.Proxy.newProxyInstance(
+                Connection.class.getClassLoader(),
+                new Class<?>[]{Connection.class},
+                (proxy, method, args) -> {
+                    if (method.getName().equals("isValid")) {
+                        return isValid;
+                    }
+                    if (method.getName().equals("close")) {
+                        return null;
+                    }
+                    return null;
+                }
+        );
+    }
+
+    private DataSource createMockDataSource(boolean throwException, Connection connection) {
+        return (DataSource) java.lang.reflect.Proxy.newProxyInstance(
+                DataSource.class.getClassLoader(),
+                new Class<?>[]{DataSource.class},
+                (proxy, method, args) -> {
+                    if (method.getName().equals("getConnection")) {
+                        if (throwException) {
+                            throw new SQLException("Connection failed");
+                        }
+                        return connection;
+                    }
+                    return null;
+                }
+        );
     }
 }
