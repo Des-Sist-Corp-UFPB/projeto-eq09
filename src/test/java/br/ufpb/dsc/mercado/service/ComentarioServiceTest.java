@@ -39,6 +39,12 @@ class ComentarioServiceTest {
     @Mock
     private LogAuditoriaService logAuditoriaService;
 
+    @Mock
+    private SpoilerDetectionService spoilerDetectionService;
+
+    @Mock
+    private AISpoilerService aiSpoilerService;
+
     @InjectMocks
     private ComentarioService comentarioService;
 

@@ -703,48 +703,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                 <div style={{ textAlign: 'center', padding: '16px', color: 'var(--text-secondary)', fontSize: '13px' }}>Carregando comentários...</div>
               ) : comentarios.length > 0 ? (
                 comentarios.map((c) => (
-                  <div 
-                    key={c.id} 
-                    style={{
-                      padding: '12px',
-                      borderRadius: 'var(--border-radius-sm)',
-                      background: 'rgba(255,255,255,0.01)',
-                      border: '1px solid rgba(255,255,255,0.02)'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>@{c.username}</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                          {new Date(c.criadoEm).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                        {usuario?.role === 'ADMIN' && (
-                          <button
-                            onClick={() => handleDeleteComment(c.id)}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              color: 'var(--danger)',
-                              cursor: 'pointer',
-                              padding: '2px',
-                              borderRadius: '4px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              opacity: 0.7,
-                              transition: 'opacity 0.2s, background-color 0.2s',
-                            }}
-                            title="Excluir comentário"
-                            onMouseEnter={(e) => { e.currentTarget.style.opacity = 1; e.currentTarget.style.backgroundColor = 'rgba(255, 51, 102, 0.1)'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.opacity = 0.7; e.currentTarget.style.backgroundColor = 'transparent'; }}
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.45' }}>{c.texto}</p>
-                  </div>
+                  <CommentItem key={c.id} c={c} usuario={usuario} handleDeleteComment={handleDeleteComment} />
                 ))
               ) : (
                 <div style={{
@@ -766,6 +725,112 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
 
         </div>
       </div>
+    </div>
+  );
+}
+
+function CommentItem({ c, usuario, handleDeleteComment }) {
+  const [revealed, setRevealed] = useState(false);
+  const isSpoiler = c.containsSpoiler || c.isSpoiler || false;
+
+  return (
+    <div 
+      style={{
+        padding: '12px',
+        borderRadius: 'var(--border-radius-sm)',
+        background: 'rgba(255,255,255,0.01)',
+        border: isSpoiler && !revealed ? '1px dashed rgba(239, 68, 68, 0.4)' : '1px solid rgba(255,255,255,0.02)',
+        position: 'relative'
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>@{c.username}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+            {new Date(c.criadoEm).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+          </span>
+          {usuario?.role === 'ADMIN' && (
+            <button
+              onClick={() => handleDeleteComment(c.id)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--danger)',
+                cursor: 'pointer',
+                padding: '2px',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: 0.7,
+                transition: 'opacity 0.2s, background-color 0.2s',
+              }}
+              title="Excluir comentário"
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = 1; e.currentTarget.style.backgroundColor = 'rgba(255, 51, 102, 0.1)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = 0.7; e.currentTarget.style.backgroundColor = 'transparent'; }}
+            >
+              <Trash2 size={13} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {isSpoiler && !revealed ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+          <p style={{
+            fontSize: '13px',
+            color: 'var(--text-secondary)',
+            lineHeight: '1.45',
+            filter: 'blur(6px)',
+            userSelect: 'none',
+            margin: 0
+          }}>
+            {c.texto}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
+            <span style={{ fontSize: '11px', color: '#ef4444', fontWeight: 600 }}>
+              ⚠️ Este comentário contém spoiler identificado automaticamente pela IA
+            </span>
+            <button
+              onClick={() => setRevealed(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--primary)',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                textDecoration: 'underline'
+              }}
+            >
+              Mostrar spoiler
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.45', margin: 0 }}>
+            {c.texto}
+          </p>
+          {isSpoiler && revealed && (
+            <button
+              onClick={() => setRevealed(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                fontSize: '11px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                marginTop: '6px',
+                textDecoration: 'underline'
+              }}
+            >
+              Ocultar spoiler
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
