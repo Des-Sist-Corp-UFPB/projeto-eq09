@@ -1,0 +1,87 @@
+# =============================================================================
+# Docker Compose — PRODUÇÃO
+# =============================================================================
+#
+# Em produção, a imagem Docker é construída pelo GitHub Actions e publicada
+# no GHCR (GitHub Container Registry).
+#
+# As credenciais do banco PostgreSQL e a porta foram configuradas de acordo
+# com as diretrizes da implantação.
+#
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # Banco de dados PostgreSQL
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: eq09-postgres
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-eq09}
+      POSTGRES_USER: ${DATABASE_USERNAME:-eq09}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-yzdS9dSAaE3YP63gDZmE}
+    volumes:
+      # Volume nomeado para persistência de dados
+      - postgres-prod-data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - eq09-net
+
+  # ---------------------------------------------------------------------------
+  # Aplicação Spring Boot
+  # ---------------------------------------------------------------------------
+  app:
+    image: ghcr.io/des-sist-corp-ufpb/projeto-eq09:latest
+    container_name: eq09-app
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DATABASE_NAME:-eq09}
+      SPRING_DATASOURCE_USERNAME: ${DATABASE_USERNAME:-eq09}
+      SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD:-yzdS9dSAaE3YP63gDZmE}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${DATABASE_NAME:-eq09}
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-eq09}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-yzdS9dSAaE3YP63gDZmE}
+      AWS_S3_ENDPOINT: ${AWS_S3_ENDPOINT:-http://minio:9000}
+      AWS_S3_PUBLIC_ENDPOINT: ${AWS_S3_PUBLIC_ENDPOINT:-https://s3.dsc.rodrigor.com}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-eq09}
+      AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY:-eq09}
+      AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY:-01nXvfGS3LUOABjTxleE0Jy7}
+      AWS_S3_REGION: ${AWS_S3_REGION:-us-east-1}
+      OTEL_SERVICE_NAME: eq09-DSCboxd
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-lgtm:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: otlp
+    ports:
+      - "8109:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - eq09-net
+
+volumes:
+  postgres-prod-data:
+
+networks:
+  eq09-net:
+    driver: bridge
