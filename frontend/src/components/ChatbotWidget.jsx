@@ -8,7 +8,7 @@ export default function ChatbotWidget({ usuario, onSelectMovie }) {
     {
       id: 1,
       sender: 'bot',
-      texto: 'Olá! Sou o seu Assistente CineBot 🤖🍿. Posso recomendar os melhores filmes para você com base nos filmes que você já assistiu no seu Diário! O que você gostaria de assistir hoje?',
+      texto: 'Olá! Sou o seu Assistente DSCbot 🤖🍿. Posso recomendar os melhores filmes para você com base nos filmes que você já assistiu no seu Diário! O que você gostaria de assistir hoje?',
       recomendacoes: []
     }
   ]);
@@ -120,7 +120,7 @@ export default function ChatbotWidget({ usuario, onSelectMovie }) {
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
           <Sparkles size={18} />
-          <span>IA CineBot</span>
+          <span>IA DSCbot</span>
         </button>
       )}
 
@@ -169,7 +169,7 @@ export default function ChatbotWidget({ usuario, onSelectMovie }) {
                 <Bot size={20} />
               </div>
               <div>
-                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#fff' }}>CineBot IA</h4>
+                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#fff' }}>DSCbot IA</h4>
                 <span style={{ fontSize: '11px', color: '#a1a1aa' }}>Recomendador de Filmes</span>
               </div>
             </div>
@@ -330,7 +330,7 @@ export default function ChatbotWidget({ usuario, onSelectMovie }) {
           >
             <input
               type="text"
-              placeholder="Pergunte ao CineBot..."
+              placeholder="Pergunte ao DSCbot..."
               value={mensagem}
               onChange={(e) => setMensagem(e.target.value)}
               disabled={loading}

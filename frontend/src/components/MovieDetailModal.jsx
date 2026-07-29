@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Star, MessageSquare, Send, Calendar, Tag, User, MessageCircle, Trash2, Heart, Eye } from 'lucide-react';
 
 export default function MovieDetailModal({ filme, usuario, onClose }) {
@@ -14,6 +15,15 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
   // Local details for reactive rating update
   const [notaMediaLocal, setNotaMediaLocal] = useState(filme.notaMedia || 0);
   const [totalAvaliacoesLocal, setTotalAvaliacoesLocal] = useState(filme.totalAvaliacoes || 0);
+
+  // Lock body scroll while modal is active so it stays perfectly centered on viewport
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
 
   const fetchComments = async () => {
     setIsLoadingComments(true);
@@ -325,19 +335,19 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
     }
   };
 
-  return (
+  return createPortal(
     <div style={{
       position: 'fixed',
       top: 0,
       left: 0,
-      right: 0,
-      bottom: 0,
+      width: '100vw',
+      height: '100vh',
       backgroundColor: 'rgba(12, 14, 18, 0.88)',
       backdropFilter: 'blur(12px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 1000,
+      zIndex: 9999,
       padding: '16px'
     }}>
       <div 
@@ -345,7 +355,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
         style={{
           width: '100%',
           maxWidth: '850px',
-          maxHeight: '92vh',
+          maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: 'var(--bg-secondary)',
@@ -410,10 +420,9 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
           gap: '24px'
         }}>
           
-          {/* Top Panel: Poster and Info (Uses CSS responsive class) */}
+          {/* Top Panel: Poster and Info */}
           <div className="modal-grid-top">
             
-            {/* Poster */}
             <div style={{
               width: '100%',
               borderRadius: 'var(--border-radius-sm)',
@@ -425,20 +434,15 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                 src={filme.imagemUrl || "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop"} 
                 alt={filme.titulo}
                 style={{ width: '100%', display: 'block', objectFit: 'cover', minHeight: '280px', maxHeight: '380px' }}
-                onError={(e) => {
-                  e.target.src = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop";
-                }}
               />
             </div>
 
-            {/* Info and Synopsis */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <h1 style={{ fontSize: '26px', fontWeight: 800, marginBottom: '8px', color: '#fff', letterSpacing: '-0.5px', lineHeight: '1.2' }}>
                   {filme.titulo}
                 </h1>
                 
-                {/* Meta row */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
                   {filme.genero && (
                     <span style={{
@@ -450,48 +454,13 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '4px',
-                      background: 'rgba(0, 224, 84, 0.08)',
-                      border: '1px solid rgba(0, 224, 84, 0.15)'
+                      background: 'rgba(0, 224, 150, 0.1)',
+                      border: '1px solid rgba(0, 224, 150, 0.2)'
                     }}>
-                      <Tag size={10} />
+                      <Tag size={12} />
                       {filme.genero}
                     </span>
                   )}
-                  <span className="glass-panel" style={{
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    padding: '3px 10px',
-                    borderRadius: '50px',
-                    color: 'var(--text-secondary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    background: 'rgba(255,255,255,0.02)'
-                  }}>
-                    <Calendar size={10} />
-                    {filme.ano}
-                  </span>
-                  <span className="glass-panel" style={{
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    padding: '3px 10px',
-                    borderRadius: '50px',
-                    color: 'var(--text-secondary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    background: 'rgba(255,255,255,0.02)'
-                  }}>
-                    <User size={10} />
-                    Dirigido por: {filme.diretor || 'Desconhecido'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Synopsis */}
-              <div>
-                <h4 style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '6px' }}>Sinopse</h4>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
                   {filme.sinopse || "Sem sinopse disponível para este filme."}
                 </p>
               </div>
@@ -726,7 +695,8 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
 
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
