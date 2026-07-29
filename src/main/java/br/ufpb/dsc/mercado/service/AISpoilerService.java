@@ -18,9 +18,14 @@ public class AISpoilerService {
 
     // Padrões explícitos e semânticos em Português e Inglês
     private static final List<SpoilerPatternRule> RULES = List.of(
-        // Desfecho e Sacrifício
+        // Desfecho e Morte/Sacrifício (em qualquer ordem: 'no final ele morre' ou 'a morte do coringa no final')
         new SpoilerPatternRule(
-            Pattern.compile("(?i)\\b(no final|na última cena|no desfecho|nos momentos finais|at the end|in the final scene|final twist)\\b.*\\b(morre|morrem|se sacrifica|sacrifício|dies|is killed|sacrifices|dies in the end|suicide)\\b"),
+            Pattern.compile("(?i)\\b(no final|na última cena|no desfecho|nos momentos finais|at the end|in the final scene|final twist)\\b.*\\b(morte|morre|morrem|se sacrifica|sacrifício|assassinado|morto|dies|death|is killed|sacrifices|dies in the end|suicide)\\b"),
+            "high",
+            "Revela o desfecho dramático e o destino/morte do personagem."
+        ),
+        new SpoilerPatternRule(
+            Pattern.compile("(?i)\\b(morte|morre|morrem|se sacrifica|sacrifício|assassinado|morto|dies|death|is killed|sacrifices|suicide)\\b.*\\b(no final|na última cena|no desfecho|nos momentos finais|at the end|in the final scene|final twist)\\b"),
             "high",
             "Revela o desfecho dramático e o destino/morte do personagem."
         ),
@@ -30,9 +35,9 @@ public class AISpoilerService {
             "Revela reviravolta narrativa crucial ou identidade secreta."
         ),
         new SpoilerPatternRule(
-            Pattern.compile("(?i)\\b(quem morre é|ele morre|ela morre|o protagonista morre|who dies is|he dies|she dies|main character dies)\\b"),
+            Pattern.compile("(?i)\\b(a morte de|a morte do|a morte da|morte de|morte do|morte da|quem morre é|ele morre|ela morre|o protagonista morre|who dies is|he dies|she dies|main character dies|death of)\\b"),
             "high",
-            "Revela a morte de um personagem principal."
+            "Revela a morte de um personagem."
         ),
         new SpoilerPatternRule(
             Pattern.compile("(?i)\\b(o verdadeiro vilão|o vilão é|the real villain|the villain is)\\b"),
@@ -117,7 +122,7 @@ public class AISpoilerService {
     }
 
     private boolean containsPlotKeywords(String text) {
-        return text.contains("morre") || text.contains("assassino") || text.contains("vilão") 
+        return text.contains("morre") || text.contains("morte") || text.contains("assassino") || text.contains("vilão") 
             || text.contains("final") || text.contains("sacrifica") || text.contains("dies") || text.contains("killer");
     }
 
