@@ -64,14 +64,18 @@ public class ComentarioService {
         // Analisa se o comentário contém spoiler via IA antes de salvar
         try {
             var analysis = aiSpoilerService.analyzeReview(new br.ufpb.dsc.mercado.dto.SpoilerAnalysisRequest(filmeId, filme.getTitulo(), request.texto()));
+            if (analysis != null && analysis.containsSpoiler() && analysis.confidence() >= 0.70) {
+                throw new IllegalArgumentException("Comentário bloqueado: o sistema identificou um spoiler sobre o filme.");
+            }
             if (analysis != null) {
-                boolean isSpoiler = analysis.containsSpoiler() && analysis.confidence() >= 0.70;
-                comentario.setContainsSpoiler(isSpoiler);
+                comentario.setContainsSpoiler(false);
                 comentario.setSpoilerConfidence(analysis.confidence());
                 comentario.setSpoilerLevel(analysis.level());
                 comentario.setSpoilerCheckedAt(java.time.Instant.now());
                 comentario.setSpoilerModelVersion(AISpoilerService.MODEL_VERSION);
             }
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             // Em caso de indisponibilidade ou erro, salva normalmente com containsSpoiler = false
             comentario.setContainsSpoiler(false);

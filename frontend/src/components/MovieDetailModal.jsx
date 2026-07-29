@@ -257,7 +257,8 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
         
         setTimeout(() => setSubmitMessage({ text: '', type: '' }), 3000);
       } else {
-        setSubmitMessage({ text: 'Erro ao enviar comentário.', type: 'danger' });
+        const errorMsg = await response.text();
+        setSubmitMessage({ text: errorMsg || 'Erro ao enviar comentário.', type: 'danger' });
       }
     } catch (err) {
       setSubmitMessage({ text: 'Falha de rede ao enviar comentário.', type: 'danger' });
