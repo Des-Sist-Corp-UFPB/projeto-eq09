@@ -21,18 +21,13 @@ public class ComentarioService {
     private final FilmeRepository filmeRepository;
     private final UsuarioRepository usuarioRepository;
     private final LogAuditoriaService logAuditoriaService;
-    private final SpoilerDetectionService spoilerDetectionService;
-    private final AISpoilerService aiSpoilerService;
 
     public ComentarioService(ComentarioRepository comentarioRepository, FilmeRepository filmeRepository,
-                             UsuarioRepository usuarioRepository, LogAuditoriaService logAuditoriaService,
-                             SpoilerDetectionService spoilerDetectionService, AISpoilerService aiSpoilerService) {
+                             UsuarioRepository usuarioRepository, LogAuditoriaService logAuditoriaService) {
         this.comentarioRepository = comentarioRepository;
         this.filmeRepository = filmeRepository;
         this.usuarioRepository = usuarioRepository;
         this.logAuditoriaService = logAuditoriaService;
-        this.spoilerDetectionService = spoilerDetectionService;
-        this.aiSpoilerService = aiSpoilerService;
     }
 
     @Transactional(readOnly = true)
@@ -42,11 +37,7 @@ public class ComentarioService {
                         c.getId(),
                         c.getTexto(),
                         c.getUsuario().getUsername(),
-                        c.getCriadoEm(),
-                        c.getContainsSpoiler(),
-                        c.getSpoilerConfidence(),
-                        c.getSpoilerLevel(),
-                        List.of()
+                        c.getCriadoEm()
                 ))
                 .collect(Collectors.toList());
     }
@@ -60,27 +51,6 @@ public class ComentarioService {
                 .orElseThrow(() -> new IllegalArgumentException("Filme não encontrado: " + filmeId));
 
         Comentario comentario = new Comentario(usuario, filme, request.texto());
-
-        // Analisa se o comentário contém spoiler via IA antes de salvar
-        try {
-            var analysis = aiSpoilerService.analyzeReview(new br.ufpb.dsc.mercado.dto.SpoilerAnalysisRequest(filmeId, filme.getTitulo(), request.texto()));
-            if (analysis != null && analysis.containsSpoiler() && analysis.confidence() >= 0.70) {
-                throw new IllegalArgumentException("Comentário bloqueado: o sistema identificou um spoiler sobre o filme.");
-            }
-            if (analysis != null) {
-                comentario.setContainsSpoiler(false);
-                comentario.setSpoilerConfidence(analysis.confidence());
-                comentario.setSpoilerLevel(analysis.level());
-                comentario.setSpoilerCheckedAt(java.time.Instant.now());
-                comentario.setSpoilerModelVersion(AISpoilerService.MODEL_VERSION);
-            }
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (Exception e) {
-            // Em caso de indisponibilidade ou erro, salva normalmente com containsSpoiler = false
-            comentario.setContainsSpoiler(false);
-        }
-
         Comentario comentarioSalvo = comentarioRepository.save(comentario);
 
         logAuditoriaService.registrarLog(username, "COMENTAR_FILME", "Comentou no filme: " + filme.getTitulo() + " (ID: " + filmeId + ")");
@@ -89,11 +59,7 @@ public class ComentarioService {
                 comentarioSalvo.getId(),
                 comentarioSalvo.getTexto(),
                 comentarioSalvo.getUsuario().getUsername(),
-                comentarioSalvo.getCriadoEm(),
-                comentarioSalvo.getContainsSpoiler(),
-                comentarioSalvo.getSpoilerConfidence(),
-                comentarioSalvo.getSpoilerLevel(),
-                List.of()
+                comentarioSalvo.getCriadoEm()
         );
     }
 

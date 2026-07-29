@@ -5,8 +5,6 @@ import br.ufpb.dsc.mercado.domain.Filme;
 import br.ufpb.dsc.mercado.domain.Usuario;
 import br.ufpb.dsc.mercado.dto.ComentarioRequest;
 import br.ufpb.dsc.mercado.dto.ComentarioResponse;
-import br.ufpb.dsc.mercado.dto.SpoilerAnalysisRequest;
-import br.ufpb.dsc.mercado.dto.SpoilerAnalysisResponse;
 import br.ufpb.dsc.mercado.repository.ComentarioRepository;
 import br.ufpb.dsc.mercado.repository.FilmeRepository;
 import br.ufpb.dsc.mercado.repository.UsuarioRepository;
@@ -17,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -40,12 +37,6 @@ class ComentarioServiceTest {
 
     @Mock
     private LogAuditoriaService logAuditoriaService;
-
-    @Mock
-    private SpoilerDetectionService spoilerDetectionService;
-
-    @Mock
-    private AISpoilerService aiSpoilerService;
 
     @InjectMocks
     private ComentarioService comentarioService;
@@ -136,23 +127,6 @@ class ComentarioServiceTest {
         });
 
         assertEquals("Filme não encontrado: 99", exception.getMessage());
-        verify(comentarioRepository, never()).save(any(Comentario.class));
-    }
-
-    @Test
-    void testAdicionar_BlockedWhenSpoiler() {
-        ComentarioRequest request = new ComentarioRequest("No final o protagonista morre");
-        SpoilerAnalysisResponse spoilerResponse = new SpoilerAnalysisResponse(true, 0.95, "high", List.of());
-
-        when(usuarioRepository.findByUsername("john_doe")).thenReturn(Optional.of(usuario));
-        when(filmeRepository.findById(10L)).thenReturn(Optional.of(filme));
-        when(aiSpoilerService.analyzeReview(any(SpoilerAnalysisRequest.class))).thenReturn(spoilerResponse);
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            comentarioService.adicionar(10L, "john_doe", request);
-        });
-
-        assertEquals("Comentário bloqueado: o sistema identificou um spoiler sobre o filme.", exception.getMessage());
         verify(comentarioRepository, never()).save(any(Comentario.class));
     }
 

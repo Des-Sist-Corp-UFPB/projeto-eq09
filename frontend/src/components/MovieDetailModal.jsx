@@ -731,16 +731,13 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
 }
 
 function CommentItem({ c, usuario, handleDeleteComment }) {
-  const [revealed, setRevealed] = useState(false);
-  const isSpoiler = c.containsSpoiler || c.isSpoiler || false;
-
   return (
     <div 
       style={{
         padding: '12px',
         borderRadius: 'var(--border-radius-sm)',
         background: 'rgba(255,255,255,0.01)',
-        border: isSpoiler && !revealed ? '1px dashed rgba(239, 68, 68, 0.4)' : '1px solid rgba(255,255,255,0.02)',
+        border: '1px solid rgba(255,255,255,0.02)',
         position: 'relative'
       }}
     >
@@ -775,63 +772,9 @@ function CommentItem({ c, usuario, handleDeleteComment }) {
           )}
         </div>
       </div>
-
-      {isSpoiler && !revealed ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
-          <p style={{
-            fontSize: '13px',
-            color: 'var(--text-secondary)',
-            lineHeight: '1.45',
-            filter: 'blur(6px)',
-            userSelect: 'none',
-            margin: 0
-          }}>
-            {c.texto}
-          </p>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
-            <span style={{ fontSize: '11px', color: '#ef4444', fontWeight: 600 }}>
-              ⚠️ Este comentário contém spoiler identificado automaticamente pela IA
-            </span>
-            <button
-              onClick={() => setRevealed(true)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--primary)',
-                fontSize: '11px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                textDecoration: 'underline'
-              }}
-            >
-              Mostrar spoiler
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.45', margin: 0 }}>
-            {c.texto}
-          </p>
-          {isSpoiler && revealed && (
-            <button
-              onClick={() => setRevealed(false)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-muted)',
-                fontSize: '11px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                marginTop: '6px',
-                textDecoration: 'underline'
-              }}
-            >
-              Ocultar spoiler
-            </button>
-          )}
-        </div>
-      )}
+      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.45', margin: 0 }}>
+        {c.texto}
+      </p>
     </div>
   );
 }

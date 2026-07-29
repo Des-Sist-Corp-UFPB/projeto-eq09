@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Diario from './pages/Diario';
+import ChatbotWidget from './components/ChatbotWidget';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('login');
@@ -105,6 +106,9 @@ export default function App() {
       <div style={{ flexGrow: 1 }}>
         {renderPage()}
       </div>
+
+      {/* Chatbot Widget IA */}
+      <ChatbotWidget usuario={usuario} />
 
       {/* Footer */}
       <footer style={{
