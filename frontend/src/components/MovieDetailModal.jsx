@@ -11,7 +11,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
   const [observacaoAssistido, setObservacaoAssistido] = useState('');
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [submitMessage, setSubmitMessage] = useState({ text: '', type: '' });
-  
+
   // Local details for reactive rating update
   const [notaMediaLocal, setNotaMediaLocal] = useState(filme.notaMedia || 0);
   const [totalAvaliacoesLocal, setTotalAvaliacoesLocal] = useState(filme.totalAvaliacoes || 0);
@@ -62,7 +62,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
   useEffect(() => {
     fetchComments();
     checkWatchedStatus();
-    
+
     // Gets from localStorage if current logged-in user already rated this movie
     if (usuario) {
       const storedRating = localStorage.getItem(`rating_${usuario.username}_${filme.id}`);
@@ -80,7 +80,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
           try {
             const parsed = JSON.parse(saved);
             setIsFavorited(parsed.favoritos?.includes(filme.id) || false);
-          } catch (e) {}
+          } catch (e) { }
         }
       }
     };
@@ -99,7 +99,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
     if (saved) {
       try {
         profile = JSON.parse(saved);
-      } catch (err) {}
+      } catch (err) { }
     }
 
     if (!profile.favoritos) {
@@ -117,7 +117,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
 
     profile.favoritos = updatedFavs;
     localStorage.setItem(profileKey, JSON.stringify(profile));
-    
+
     // Dispatch event to sync other views
     window.dispatchEvent(new Event('storage'));
   };
@@ -229,7 +229,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
         setUserRating(nota);
         localStorage.setItem(`rating_${usuario.username}_${filme.id}`, nota.toString());
         setSubmitMessage({ text: 'Avaliação enviada com sucesso!', type: 'success' });
-        
+
         setTimeout(() => setSubmitMessage({ text: '', type: '' }), 3000);
       } else {
         const text = await response.text();
@@ -264,7 +264,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
         setComentarios(prev => [comentarioSalvo, ...prev]);
         setNovoComentario('');
         setSubmitMessage({ text: 'Comentário publicado!', type: 'success' });
-        
+
         setTimeout(() => setSubmitMessage({ text: '', type: '' }), 3000);
       } else {
         const errorMsg = await response.text();
@@ -350,7 +350,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
       zIndex: 9999,
       padding: '16px'
     }}>
-      <div 
+      <div
         className="glass-panel animate-fade-in"
         style={{
           width: '100%',
@@ -375,7 +375,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
           <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px' }}>Detalhes do Filme</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             {usuario && usuario.role === 'ADMIN' && (
-              <button 
+              <button
                 onClick={handleDeleteMovie}
                 className="btn-secondary"
                 style={{
@@ -395,7 +395,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                 <span>Excluir Filme</span>
               </button>
             )}
-            <button 
+            <button
               onClick={onClose}
               className="btn-secondary"
               style={{
@@ -419,10 +419,10 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
           flexDirection: 'column',
           gap: '24px'
         }}>
-          
+
           {/* Top Panel: Poster and Info */}
           <div className="modal-grid-top">
-            
+
             <div style={{
               width: '100%',
               borderRadius: 'var(--border-radius-sm)',
@@ -430,8 +430,8 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
               boxShadow: '0 8px 25px rgba(0,0,0,0.6)',
               border: '1px solid rgba(255,255,255,0.04)'
             }}>
-              <img 
-                src={filme.imagemUrl || "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop"} 
+              <img
+                src={filme.imagemUrl || "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500&auto=format&fit=crop"}
                 alt={filme.titulo}
                 style={{ width: '100%', display: 'block', objectFit: 'cover', minHeight: '280px', maxHeight: '380px' }}
               />
@@ -442,7 +442,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                 <h1 style={{ fontSize: '26px', fontWeight: 800, marginBottom: '8px', color: '#fff', letterSpacing: '-0.5px', lineHeight: '1.2' }}>
                   {filme.titulo}
                 </h1>
-                
+
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
                   {filme.genero && (
                     <span style={{
@@ -462,7 +462,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                     </span>
                   )}
                   {filme.sinopse || "Sem sinopse disponível para este filme."}
-                </p>
+                </div>
               </div>
 
               {/* Rating metrics */}
@@ -483,9 +483,9 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                     <span style={{ fontSize: '24px', fontWeight: 800, color: '#fff' }}>{notaMediaLocal.toFixed(1)}</span>
                   </div>
                 </div>
-                
+
                 <div style={{ width: '1px', height: '32px', background: 'rgba(255,255,255,0.05)' }}></div>
-                
+
                 <div>
                   <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginBottom: '4px' }}>Avaliações</span>
                   <span style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>{totalAvaliacoesLocal}</span>
@@ -520,7 +520,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                 {usuario ? 'Clique em uma estrela para registrar sua nota' : 'Faça login para avaliar este filme'}
               </p>
             </div>
-            
+
             <div className="star-rating" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', gap: '6px' }}>
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -557,10 +557,10 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                     }}
                     title={isFavorited ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                   >
-                    <Heart 
-                      size={14} 
-                      fill={isFavorited ? 'var(--danger)' : 'none'} 
-                      color={isFavorited ? 'var(--danger)' : 'currentColor'} 
+                    <Heart
+                      size={14}
+                      fill={isFavorited ? 'var(--danger)' : 'none'}
+                      color={isFavorited ? 'var(--danger)' : 'currentColor'}
                     />
                     <span>{isFavorited ? 'Favoritado' : 'Favoritar'}</span>
                   </button>
@@ -582,9 +582,9 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
                     }}
                     title={isWatched ? "Remover dos assistidos" : "Marcar como assistido"}
                   >
-                    <Eye 
-                      size={14} 
-                      color={isWatched ? 'var(--primary)' : 'currentColor'} 
+                    <Eye
+                      size={14}
+                      color={isWatched ? 'var(--primary)' : 'currentColor'}
                     />
                     <span>{isWatched ? 'Assistido' : 'Marcar Assistido'}</span>
                   </button>
@@ -595,13 +595,13 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
 
           {/* Campo de Observação do Diário */}
           {usuario && isWatched && (
-            <div className="glass-panel" style={{ 
-              padding: '16px 20px', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '10px', 
-              backgroundColor: 'rgba(255,255,255,0.01)', 
-              marginTop: '-8px' 
+            <div className="glass-panel" style={{
+              padding: '16px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              backgroundColor: 'rgba(255,255,255,0.01)',
+              marginTop: '-8px'
             }}>
               <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)' }}>
                 Observação do Diário (Opcional)
@@ -656,8 +656,8 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
             )}
 
             {/* Comments List */}
-            <div 
-              className="glass-panel" 
+            <div
+              className="glass-panel"
               style={{
                 maxHeight: '260px',
                 overflowY: 'auto',
@@ -702,7 +702,7 @@ export default function MovieDetailModal({ filme, usuario, onClose }) {
 
 function CommentItem({ c, usuario, handleDeleteComment }) {
   return (
-    <div 
+    <div
       style={{
         padding: '12px',
         borderRadius: 'var(--border-radius-sm)',
