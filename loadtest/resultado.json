@@ -1,0 +1,322 @@
+{
+    "metrics": {
+        "http_req_waiting": {
+            "med": 4.2213355,
+            "max": 106.904201,
+            "p(90)": 11.156299300000002,
+            "p(95)": 14.204613499999999,
+            "avg": 5.7856671423691015,
+            "min": 0.309008
+        },
+        "http_req_blocked": {
+            "avg": 0.03225457893131597,
+            "min": 0.0024,
+            "med": 0.0054,
+            "max": 25.144194,
+            "p(90)": 0.0076,
+            "p(95)": 0.0087
+        },
+        "vus_max": {
+            "max": 75,
+            "value": 75,
+            "min": 75
+        },
+        "http_req_duration": {
+            "avg": 5.95956814340611,
+            "min": 0.42951,
+            "med": 4.386388999999999,
+            "max": 107.966522,
+            "p(90)": 11.346729900000001,
+            "p(95)": 14.437178849999965,
+            "thresholds": {
+                "p(95)<500": false
+            }
+        },
+        "checks": {
+            "fails": 54,
+            "passes": 25508,
+            "value": 0.9978874892418433
+        },
+        "http_req_connecting": {
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.02400418647065999,
+            "min": 0,
+            "med": 0,
+            "max": 25.043593
+        },
+        "iteration_duration": {
+            "avg": 1036.7007361635135,
+            "min": 1017.152975,
+            "med": 1032.049906,
+            "max": 1162.746916,
+            "p(90)": 1053.337298,
+            "p(95)": 1057.444565
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 5.945493433292519,
+            "min": 0.42951,
+            "med": 4.3803754999999995,
+            "max": 107.966522,
+            "p(90)": 11.3362355,
+            "p(95)": 14.453501849999991
+        },
+        "http_req_tls_handshaking": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "http_req_receiving": {
+            "max": 9.211192,
+            "p(90)": 0.2755067,
+            "p(95)": 0.4169097,
+            "avg": 0.15314854538245787,
+            "min": -1.12333,
+            "med": 0.112702
+        },
+        "http_req_sending": {
+            "p(95)": 0.05070035,
+            "avg": 0.020752455654507663,
+            "min": 0.0063,
+            "med": 0.0152,
+            "max": 1.799236,
+            "p(90)": 0.04157100000000007
+        },
+        "http_req_failed": {
+            "passes": 54,
+            "fails": 16340,
+            "thresholds": {
+                "rate<0.01": false
+            },
+            "value": 0.0032938880078077345
+        },
+        "data_received": {
+            "count": 21575136,
+            "rate": 407090.12294351944
+        },
+        "iterations": {
+            "count": 2801,
+            "rate": 52.850625570323075
+        },
+        "http_reqs": {
+            "count": 16394,
+            "rate": 309.3299377364786
+        },
+        "vus": {
+            "value": 1,
+            "min": 1,
+            "max": 75
+        },
+        "data_sent": {
+            "count": 3396797,
+            "rate": 64092.41213330836
+        }
+    },
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "login admin status 200": {
+                    "id": "d14f74f897cfad41557405663e5e2ec6",
+                    "passes": 7,
+                    "fails": 0,
+                    "name": "login admin status 200",
+                    "path": "::login admin status 200"
+                },
+                "admin token gerado com sucesso": {
+                    "name": "admin token gerado com sucesso",
+                    "path": "::admin token gerado com sucesso",
+                    "id": "cd8d370d3beefea45b953672d45c7fa5",
+                    "passes": 7,
+                    "fails": 0
+                },
+                "cadastrar filme status 201": {
+                    "name": "cadastrar filme status 201",
+                    "path": "::cadastrar filme status 201",
+                    "id": "f98a5831b121d2b436e6d7e4e9b4d8df",
+                    "passes": 148,
+                    "fails": 0
+                },
+                "id do filme retornado": {
+                    "fails": 0,
+                    "name": "id do filme retornado",
+                    "path": "::id do filme retornado",
+                    "id": "aa6a9fc6eb1332f9d07e8d1b648791b5",
+                    "passes": 148
+                },
+                "obter filme criado status 200": {
+                    "name": "obter filme criado status 200",
+                    "path": "::obter filme criado status 200",
+                    "id": "00e8b13c98e90578d4ac8bf6357598ee",
+                    "passes": 148,
+                    "fails": 0
+                },
+                "titulo do filme bate com cadastrado": {
+                    "name": "titulo do filme bate com cadastrado",
+                    "path": "::titulo do filme bate com cadastrado",
+                    "id": "9d3f76cc5be7004506661d893040c1a9",
+                    "passes": 148,
+                    "fails": 0
+                },
+                "remover filme status 204": {
+                    "name": "remover filme status 204",
+                    "path": "::remover filme status 204",
+                    "id": "42d5b1aa7d26d2a80959298cb18e3e02",
+                    "passes": 148,
+                    "fails": 0
+                },
+                "ping status 200": {
+                    "path": "::ping status 200",
+                    "id": "ff8df03119ffcb6fd688e4d11cb25a41",
+                    "passes": 1768,
+                    "fails": 0,
+                    "name": "ping status 200"
+                },
+                "ping response ok": {
+                    "fails": 0,
+                    "name": "ping response ok",
+                    "path": "::ping response ok",
+                    "id": "890fb83a76ed64b8a3f4645223d7779a",
+                    "passes": 1768
+                },
+                "listar filmes status 200": {
+                    "name": "listar filmes status 200",
+                    "path": "::listar filmes status 200",
+                    "id": "c5f9b8939951a8e2c4c54c968d7b1b2c",
+                    "passes": 1768,
+                    "fails": 0
+                },
+                "listar filmes retorna lista": {
+                    "passes": 1768,
+                    "fails": 0,
+                    "name": "listar filmes retorna lista",
+                    "path": "::listar filmes retorna lista",
+                    "id": "15a917926c4767c9492e26cfd4726301"
+                },
+                "busca filmes status 200": {
+                    "name": "busca filmes status 200",
+                    "path": "::busca filmes status 200",
+                    "id": "179422b08081859b19f970344a9ddb72",
+                    "passes": 1768,
+                    "fails": 0
+                },
+                "busca retorna pelo menos um resultado": {
+                    "name": "busca retorna pelo menos um resultado",
+                    "path": "::busca retorna pelo menos um resultado",
+                    "id": "14878537f4a81a2f4ca3265ba0c1d44c",
+                    "passes": 1768,
+                    "fails": 0
+                },
+                "obter filme por id status 200": {
+                    "passes": 1768,
+                    "fails": 0,
+                    "name": "obter filme por id status 200",
+                    "path": "::obter filme por id status 200",
+                    "id": "850b26e583839bbf0023818203c1e24d"
+                },
+                "detalhe contem id correto": {
+                    "id": "142eaebff6907c4cf253487f1934db51",
+                    "passes": 1768,
+                    "fails": 0,
+                    "name": "detalhe contem id correto",
+                    "path": "::detalhe contem id correto"
+                },
+                "listar comentarios status 200": {
+                    "path": "::listar comentarios status 200",
+                    "id": "ed4c18feed3ae6efd5daaff6dac31b74",
+                    "passes": 1768,
+                    "fails": 0,
+                    "name": "listar comentarios status 200"
+                },
+                "login user status 200": {
+                    "name": "login user status 200",
+                    "path": "::login user status 200",
+                    "id": "86419382ad289cd4d0243023179ea4b1",
+                    "passes": 23,
+                    "fails": 0
+                },
+                "user token gerado com sucesso": {
+                    "name": "user token gerado com sucesso",
+                    "path": "::user token gerado com sucesso",
+                    "id": "07fb5cd3b0cc46883a88346315510aba",
+                    "passes": 23,
+                    "fails": 0
+                },
+                "obter estatisticas diario status 200": {
+                    "name": "obter estatisticas diario status 200",
+                    "path": "::obter estatisticas diario status 200",
+                    "id": "c84566b84c4df69b638b0ab370282af4",
+                    "passes": 885,
+                    "fails": 0
+                },
+                "listar watchlist status 200": {
+                    "name": "listar watchlist status 200",
+                    "path": "::listar watchlist status 200",
+                    "id": "9ac5206811bf93d280e4dc20ec599b05",
+                    "passes": 885,
+                    "fails": 0
+                },
+                "obter total watchlist status 200": {
+                    "path": "::obter total watchlist status 200",
+                    "id": "e1b890c4f8dc81759e8738b3fa91a848",
+                    "passes": 885,
+                    "fails": 0,
+                    "name": "obter total watchlist status 200"
+                },
+                "verificar status antes status 200": {
+                    "id": "79b70172efb457f17307aaa7a0af713c",
+                    "passes": 885,
+                    "fails": 0,
+                    "name": "verificar status antes status 200",
+                    "path": "::verificar status antes status 200"
+                },
+                "adicionar filme status 200": {
+                    "name": "adicionar filme status 200",
+                    "path": "::adicionar filme status 200",
+                    "id": "ef468017776fd076af4d0b7017f7b6a1",
+                    "passes": 865,
+                    "fails": 20
+                },
+                "verificar status depois status 200": {
+                    "name": "verificar status depois status 200",
+                    "path": "::verificar status depois status 200",
+                    "id": "551f68d06c418d678705caed76c55010",
+                    "passes": 885,
+                    "fails": 0
+                },
+                "filme esta na watchlist": {
+                    "name": "filme esta na watchlist",
+                    "path": "::filme esta na watchlist",
+                    "id": "534f45d753587bb6793b1f6db93a85e3",
+                    "passes": 885,
+                    "fails": 0
+                },
+                "remover filme status 200": {
+                    "id": "9d0fdf8ca9a5672e7609c4e848ce91a2",
+                    "passes": 851,
+                    "fails": 34,
+                    "name": "remover filme status 200",
+                    "path": "::remover filme status 200"
+                },
+                "verificar status final status 200": {
+                    "fails": 0,
+                    "name": "verificar status final status 200",
+                    "path": "::verificar status final status 200",
+                    "id": "0aff8321df7778a6909bb2d46006593e",
+                    "passes": 885
+                },
+                "filme nao esta mais na watchlist": {
+                    "passes": 885,
+                    "fails": 0,
+                    "name": "filme nao esta mais na watchlist",
+                    "path": "::filme nao esta mais na watchlist",
+                    "id": "d8f5fa14e9e106c0916dc61c1266ce10"
+                }
+            }
+    }
+}

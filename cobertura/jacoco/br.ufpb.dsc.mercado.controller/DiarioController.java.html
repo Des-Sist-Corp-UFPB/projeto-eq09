@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DiarioController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mercado</a> &gt; <a href="index.source.html" class="el_package">br.ufpb.dsc.mercado.controller</a> &gt; <span class="el_source">DiarioController.java</span></div><h1>DiarioController.java</h1><pre class="source lang-java linenums">package br.ufpb.dsc.mercado.controller;
+
+import br.ufpb.dsc.mercado.dto.*;
+import br.ufpb.dsc.mercado.service.DiarioFilmeService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/api/diario&quot;)
+public class DiarioController {
+
+    private final DiarioFilmeService diarioFilmeService;
+
+<span class="fc" id="L18">    public DiarioController(DiarioFilmeService diarioFilmeService) {</span>
+<span class="fc" id="L19">        this.diarioFilmeService = diarioFilmeService;</span>
+<span class="fc" id="L20">    }</span>
+
+    @PostMapping(&quot;/filmes/{filmeId}&quot;)
+    public ResponseEntity&lt;String&gt; marcarComoAssistido(@PathVariable Long filmeId,
+                                                      @AuthenticationPrincipal UserDetails userDetails,
+                                                      @RequestBody(required = false) DiarioRequest request) {
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        DiarioRequest req = request != null ? request : new DiarioRequest(&quot;&quot;);</span>
+        try {
+<span class="fc" id="L28">            diarioFilmeService.marcarComoAssistido(filmeId, userDetails.getUsername(), req);</span>
+<span class="fc" id="L29">            return ResponseEntity.ok(&quot;Filme marcado como assistido com sucesso!&quot;);</span>
+<span class="fc" id="L30">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L31">            return ResponseEntity.badRequest().body(e.getMessage());</span>
+        }
+    }
+
+    @DeleteMapping(&quot;/filmes/{filmeId}&quot;)
+    public ResponseEntity&lt;String&gt; removerMarcacao(@PathVariable Long filmeId,
+                                                  @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+<span class="fc" id="L39">            diarioFilmeService.removerMarcacao(filmeId, userDetails.getUsername());</span>
+<span class="fc" id="L40">            return ResponseEntity.ok(&quot;Marcação de assistido removida com sucesso!&quot;);</span>
+<span class="fc" id="L41">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L42">            return ResponseEntity.badRequest().body(e.getMessage());</span>
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity&lt;?&gt; listarDiario(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+<span class="fc" id="L49">            List&lt;DiarioResponse&gt; diario = diarioFilmeService.listarDiario(userDetails.getUsername());</span>
+<span class="fc" id="L50">            return ResponseEntity.ok(diario);</span>
+<span class="fc" id="L51">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L52">            return ResponseEntity.badRequest().body(e.getMessage());</span>
+        }
+    }
+
+    @GetMapping(&quot;/filmes/{filmeId}/verificar&quot;)
+    public ResponseEntity&lt;DiarioStatusResponse&gt; verificarStatus(@PathVariable Long filmeId,
+                                                                @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+<span class="fc" id="L60">            DiarioStatusResponse status = diarioFilmeService.verificarStatus(filmeId, userDetails.getUsername());</span>
+<span class="fc" id="L61">            return ResponseEntity.ok(status);</span>
+<span class="fc" id="L62">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L63">            return ResponseEntity.badRequest().build();</span>
+        }
+    }
+
+    @GetMapping(&quot;/estatisticas&quot;)
+    public ResponseEntity&lt;DiarioEstatisticasResponse&gt; obterEstatisticas(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+<span class="fc" id="L70">            DiarioEstatisticasResponse estatisticas = diarioFilmeService.obterEstatisticas(userDetails.getUsername());</span>
+<span class="fc" id="L71">            return ResponseEntity.ok(estatisticas);</span>
+<span class="fc" id="L72">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L73">            return ResponseEntity.badRequest().build();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

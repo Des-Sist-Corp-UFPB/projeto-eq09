@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UsuarioService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mercado</a> &gt; <a href="index.source.html" class="el_package">br.ufpb.dsc.mercado.service</a> &gt; <span class="el_source">UsuarioService.java</span></div><h1>UsuarioService.java</h1><pre class="source lang-java linenums">package br.ufpb.dsc.mercado.service;
+
+import br.ufpb.dsc.mercado.domain.Usuario;
+import br.ufpb.dsc.mercado.dto.AuthRequest;
+import br.ufpb.dsc.mercado.dto.AuthResponse;
+import br.ufpb.dsc.mercado.dto.RegisterRequest;
+import br.ufpb.dsc.mercado.repository.UsuarioRepository;
+import br.ufpb.dsc.mercado.config.security.JwtTokenProvider;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+public class UsuarioService implements UserDetailsService {
+
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider tokenProvider;
+    private final AuthenticationManager authenticationManager;
+    private final LogAuditoriaService logAuditoriaService;
+
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
+                          JwtTokenProvider tokenProvider, @Lazy AuthenticationManager authenticationManager,
+<span class="fc" id="L36">                          LogAuditoriaService logAuditoriaService) {</span>
+<span class="fc" id="L37">        this.usuarioRepository = usuarioRepository;</span>
+<span class="fc" id="L38">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L39">        this.tokenProvider = tokenProvider;</span>
+<span class="fc" id="L40">        this.authenticationManager = authenticationManager;</span>
+<span class="fc" id="L41">        this.logAuditoriaService = logAuditoriaService;</span>
+<span class="fc" id="L42">    }</span>
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+<span class="fc" id="L47">        Usuario usuario = usuarioRepository.findByUsername(username)</span>
+<span class="fc" id="L48">                .orElseThrow(() -&gt; new UsernameNotFoundException(&quot;Usuário não encontrado com o username: &quot; + username));</span>
+
+<span class="fc" id="L50">        return new User(</span>
+<span class="fc" id="L51">                usuario.getUsername(),</span>
+<span class="fc" id="L52">                usuario.getPassword(),</span>
+<span class="fc" id="L53">                List.of(new SimpleGrantedAuthority(&quot;ROLE_&quot; + usuario.getRole()))</span>
+        );
+    }
+
+    @Transactional
+    public void registrar(RegisterRequest request) {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (usuarioRepository.existsByUsername(request.username())) {</span>
+<span class="fc" id="L60">            throw new IllegalArgumentException(&quot;O nome de usuário já está sendo utilizado.&quot;);</span>
+        }
+
+<span class="fc" id="L63">        String encodedPassword = passwordEncoder.encode(request.password());</span>
+<span class="fc" id="L64">        String role = &quot;USER&quot;;</span>
+
+<span class="fc" id="L66">        Usuario usuario = new Usuario(request.username(), encodedPassword, role);</span>
+<span class="fc" id="L67">        usuarioRepository.save(usuario);</span>
+        
+<span class="fc" id="L69">        logAuditoriaService.registrarLog(request.username(), &quot;REGISTRO_USUARIO&quot;, &quot;Usuário cadastrado com sucesso.&quot;);</span>
+<span class="fc" id="L70">    }</span>
+
+    @Transactional
+    public AuthResponse autenticar(AuthRequest request) {
+        try {
+<span class="fc" id="L75">            Authentication authentication = authenticationManager.authenticate(</span>
+<span class="fc" id="L76">                    new UsernamePasswordAuthenticationToken(request.username(), request.password())</span>
+            );
+
+<span class="fc" id="L79">            SecurityContextHolder.getContext().setAuthentication(authentication);</span>
+<span class="fc" id="L80">            String token = tokenProvider.generateToken(authentication);</span>
+
+<span class="fc" id="L82">            Usuario usuario = usuarioRepository.findByUsername(request.username())</span>
+<span class="pc" id="L83">                    .orElseThrow(() -&gt; new UsernameNotFoundException(&quot;Usuário não encontrado: &quot; + request.username()));</span>
+
+<span class="fc" id="L85">            logAuditoriaService.registrarLog(usuario.getUsername(), &quot;LOGIN_SUCESSO&quot;, &quot;Usuário autenticado com sucesso.&quot;);</span>
+
+<span class="fc" id="L87">            return new AuthResponse(token, usuario.getUsername(), usuario.getRole());</span>
+<span class="fc" id="L88">        } catch (Exception e) {</span>
+<span class="fc" id="L89">            logAuditoriaService.registrarLog(request.username(), &quot;LOGIN_FALHA&quot;, &quot;Tentativa de login falhou: &quot; + e.getMessage());</span>
+<span class="fc" id="L90">            throw e;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
