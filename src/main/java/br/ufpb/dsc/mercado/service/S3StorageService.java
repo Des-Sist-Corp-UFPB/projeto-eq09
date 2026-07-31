@@ -1,5 +1,6 @@
 package br.ufpb.dsc.mercado.service;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +28,7 @@ public class S3StorageService {
         this.publicEndpoint = publicEndpoint;
     }
 
+    @WithSpan("s3-upload-file")
     public String uploadFile(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         String extension = "";

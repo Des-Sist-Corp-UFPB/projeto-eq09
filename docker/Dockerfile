@@ -48,11 +48,14 @@ RUN groupadd --gid 1001 mercado && \
 
 WORKDIR /app
 
+# Baixar agente OpenTelemetry Java
+ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar /app/opentelemetry-javaagent.jar
+
 # Copiar apenas o JAR do estágio anterior
 COPY --from=backend-builder /build/target/*.jar app.jar
 
-# Definir owner do arquivo
-RUN chown mercado:mercado app.jar
+# Definir owner dos arquivos
+RUN chown -R mercado:mercado /app
 
 # Trocar para usuário não-root
 USER mercado
@@ -66,5 +69,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
     "-XX:MaxRAMPercentage=75.0", \
+    "-javaagent:/app/opentelemetry-javaagent.jar", \
     "-Dspring.profiles.active=prod", \
     "-jar", "app.jar"]

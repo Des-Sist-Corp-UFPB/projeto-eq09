@@ -1,5 +1,7 @@
 package br.ufpb.dsc.mercado.service;
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,13 +33,15 @@ public class OpenAiLlmService implements LlmService {
         this.restClient = (restClientBuilder != null) ? restClientBuilder.build() : RestClient.builder().build();
     }
 
+    @WithSpan("llm-gerar-resposta")
     @Override
     public String gerarResposta(String promptSistema, String promptUsuario) {
         return gerarRespostaComModelo(promptSistema, promptUsuario, this.model);
     }
 
+    @WithSpan("llm-gerar-resposta-com-modelo")
     @Override
-    public String gerarRespostaComModelo(String promptSistema, String promptUsuario, String modeloEspecifico) {
+    public String gerarRespostaComModelo(String promptSistema, String promptUsuario, @SpanAttribute("llm.model") String modeloEspecifico) {
         if (apiKey == null || apiKey.isBlank()) {
             log.warn("API Key para OpenAI/LiteLLM não configurada.");
             return null;

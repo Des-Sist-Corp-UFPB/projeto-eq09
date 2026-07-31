@@ -7,6 +7,8 @@ import br.ufpb.dsc.mercado.dto.AvaliacaoRequest;
 import br.ufpb.dsc.mercado.repository.AvaliacaoRepository;
 import br.ufpb.dsc.mercado.repository.FilmeRepository;
 import br.ufpb.dsc.mercado.repository.UsuarioRepository;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +28,9 @@ public class AvaliacaoService {
         this.logAuditoriaService = logAuditoriaService;
     }
 
+    @WithSpan("avaliacao-avaliar")
     @Transactional
-    public void avaliar(Long filmeId, String username, AvaliacaoRequest request) {
+    public void avaliar(@SpanAttribute("filme.id") Long filmeId, @SpanAttribute("usuario.username") String username, AvaliacaoRequest request) {
         Usuario usuario = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado: " + username));
 

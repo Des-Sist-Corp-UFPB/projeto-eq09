@@ -5,6 +5,8 @@ import br.ufpb.dsc.mercado.dto.FilmeRequest;
 import br.ufpb.dsc.mercado.dto.FilmeResponse;
 import br.ufpb.dsc.mercado.repository.AvaliacaoRepository;
 import br.ufpb.dsc.mercado.repository.FilmeRepository;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +27,9 @@ public class FilmeService {
         this.logAuditoriaService = logAuditoriaService;
     }
 
+    @WithSpan("filme-listar-todos")
     @Transactional(readOnly = true)
-    public List<FilmeResponse> listarTodos(String query) {
+    public List<FilmeResponse> listarTodos(@SpanAttribute("query") String query) {
         List<Filme> filmes;
         if (query != null && !query.isBlank()) {
             filmes = filmeRepository.findByTituloContainingIgnoreCaseOrderByTituloAsc(query);
@@ -37,13 +40,15 @@ public class FilmeService {
         return filmes.stream().map(this::toResponse).collect(Collectors.toList());
     }
 
+    @WithSpan("filme-obter-por-id")
     @Transactional(readOnly = true)
-    public FilmeResponse obterPorId(Long id) {
+    public FilmeResponse obterPorId(@SpanAttribute("filme.id") Long id) {
         Filme filme = filmeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Filme não encontrado com o ID: " + id));
         return toResponse(filme);
     }
 
+    @WithSpan("filme-cadastrar")
     @Transactional
     public FilmeResponse cadastrar(FilmeRequest request) {
         Filme filme = new Filme(
@@ -62,8 +67,9 @@ public class FilmeService {
         return toResponse(filmeSalvo);
     }
 
+    @WithSpan("filme-remover")
     @Transactional
-    public void remover(Long id) {
+    public void remover(@SpanAttribute("filme.id") Long id) {
         Filme filme = filmeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Filme não encontrado com o ID: " + id));
 
