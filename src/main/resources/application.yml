@@ -30,3 +30,10 @@ management:
     health:
       # Detalhes do health só são exibidos para usuários autenticados
       show-details: when-authorized
+
+# Configuração LiteLLM / OpenAI API
+openai:
+  base-url: ${OPENAI_BASE_URL:https://llm.rodrigor.com/v1}
+  api-key: ${OPENAI_API_KEY:sk-bNVQrt-AKm1-5lOsI6fQ1g}
+  model: ${OPENAI_MODEL:gpt-4o-mini}
+

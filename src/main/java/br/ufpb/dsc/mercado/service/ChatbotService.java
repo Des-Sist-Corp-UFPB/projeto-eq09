@@ -20,13 +20,16 @@ public class ChatbotService {
     private final UsuarioRepository usuarioRepository;
     private final FilmeRepository filmeRepository;
     private final DiarioFilmeRepository diarioFilmeRepository;
+    private final LlmService llmService;
 
     public ChatbotService(UsuarioRepository usuarioRepository,
                           FilmeRepository filmeRepository,
-                          DiarioFilmeRepository diarioFilmeRepository) {
+                          DiarioFilmeRepository diarioFilmeRepository,
+                          LlmService llmService) {
         this.usuarioRepository = usuarioRepository;
         this.filmeRepository = filmeRepository;
         this.diarioFilmeRepository = diarioFilmeRepository;
+        this.llmService = llmService;
     }
 
     @Transactional(readOnly = true)
@@ -34,8 +37,6 @@ public class ChatbotService {
         if (mensagem == null || mensagem.isBlank()) {
             return new ChatResponse("Olá! Como posso ajudar você a escolher seu próximo filme hoje?", Collections.emptyList());
         }
-
-        String msgLower = mensagem.trim().toLowerCase();
 
         // Obtém o usuário e histórico de assistidos
         Optional<Usuario> usuarioOpt = (username != null && !username.isBlank()) 
@@ -52,6 +53,109 @@ public class ChatbotService {
                 .map(d -> d.getFilme().getId())
                 .collect(Collectors.toSet());
 
+        // Filmes não assistidos para recomendar
+        List<Filme> candidatos = todosFilmes.stream()
+                .filter(f -> !idsAssistidos.contains(f.getId()))
+                .collect(Collectors.toList());
+
+        if (candidatos.isEmpty()) {
+            candidatos = new ArrayList<>(todosFilmes);
+        }
+
+        if (todosFilmes.isEmpty()) {
+            return new ChatResponse(
+                "No momento não temos filmes cadastrados no catálogo para sugerir. Que tal adicionar alguns filmes no sistema?",
+                Collections.emptyList()
+            );
+        }
+
+        // Tenta gerar resposta através da LLM (LiteLLM / OpenAI API)
+        if (llmService != null) {
+            String promptSistema = "Você é o assistente virtual DSCbot do sistema de recomendação de filmes DSCboxd. " +
+                    "Seu objetivo é ajudar usuários recomendando filmes do nosso catálogo com base nas suas preferências e histórico do diário. " +
+                    "Responda sempre em português de forma simpática, clara e entusiasmada.";
+
+            StringBuilder promptUsuarioBuilder = new StringBuilder();
+            promptUsuarioBuilder.append("Histórico de filmes assistidos pelo usuário no diário:\n");
+            if (assistidos.isEmpty()) {
+                promptUsuarioBuilder.append("- Nenhum filme registrado no diário ainda.\n");
+            } else {
+                for (DiarioFilme df : assistidos) {
+                    Filme f = df.getFilme();
+                    promptUsuarioBuilder.append(String.format("- %s (%d) - Gênero: %s, Diretor: %s\n",
+                            f.getTitulo(), f.getAno(), f.getGenero(), f.getDiretor()));
+                }
+            }
+
+            promptUsuarioBuilder.append("\nCatálogo de filmes disponíveis para sugestão:\n");
+            for (Filme f : candidatos) {
+                promptUsuarioBuilder.append(String.format("- [ID: %d] %s (%d) - Gênero: %s, Diretor: %s\n",
+                        f.getId(), f.getTitulo(), f.getAno(), f.getGenero(), f.getDiretor()));
+            }
+
+            promptUsuarioBuilder.append("\nMensagem do usuário: ").append(mensagem);
+
+            String respostaLlm = llmService.gerarResposta(promptSistema, promptUsuarioBuilder.toString());
+            if (respostaLlm != null && !respostaLlm.isBlank()) {
+                List<FilmeRecomendacaoDTO> recomendacoes = selecionarRecomendacoesParaLlm(candidatos, respostaLlm, mensagem);
+                return new ChatResponse(respostaLlm, recomendacoes);
+            }
+        }
+
+        // Fallback gracioso para algoritmo baseado em regras se a LLM falhar ou não estiver disponível
+        return conversarFallbackRegras(mensagem, assistidos, candidatos);
+    }
+
+    private List<FilmeRecomendacaoDTO> selecionarRecomendacoesParaLlm(List<Filme> candidatos, String respostaLlm, String mensagem) {
+        List<FilmeRecomendacaoDTO> recomendacoes = new ArrayList<>();
+        String respostaLower = respostaLlm.toLowerCase();
+        String msgLower = mensagem.toLowerCase();
+        String generoProcurado = identificarGeneroNaMensagem(msgLower);
+
+        // 1. Filmes explicitamente citados no texto da LLM
+        for (Filme f : candidatos) {
+            if (f.getTitulo() != null && respostaLower.contains(f.getTitulo().toLowerCase())) {
+                recomendacoes.add(new FilmeRecomendacaoDTO(
+                        f.getId(), f.getTitulo(), f.getGenero(), f.getDiretor(), f.getAno(), f.getImagemUrl(),
+                        "Recomendado pela IA DSCbot."
+                ));
+                if (recomendacoes.size() >= 3) break;
+            }
+        }
+
+        // 2. Se a IA não citou nomes exatos de filmes, busca por gênero solicitado
+        if (recomendacoes.size() < 3 && generoProcurado != null) {
+            for (Filme f : candidatos) {
+                if (recomendacoes.stream().noneMatch(r -> r.id().equals(f.getId()))) {
+                    if (f.getGenero() != null && f.getGenero().toLowerCase().contains(generoProcurado.toLowerCase())) {
+                        recomendacoes.add(new FilmeRecomendacaoDTO(
+                                f.getId(), f.getTitulo(), f.getGenero(), f.getDiretor(), f.getAno(), f.getImagemUrl(),
+                                "Sugerido com base no gênero " + f.getGenero()
+                        ));
+                        if (recomendacoes.size() >= 3) break;
+                    }
+                }
+            }
+        }
+
+        // 3. Completa com candidatos disponíveis
+        if (recomendacoes.size() < 3) {
+            for (Filme f : candidatos) {
+                if (recomendacoes.stream().noneMatch(r -> r.id().equals(f.getId()))) {
+                    recomendacoes.add(new FilmeRecomendacaoDTO(
+                            f.getId(), f.getTitulo(), f.getGenero(), f.getDiretor(), f.getAno(), f.getImagemUrl(),
+                            "Destaque do catálogo."
+                    ));
+                    if (recomendacoes.size() >= 3) break;
+                }
+            }
+        }
+
+        return recomendacoes;
+    }
+
+    private ChatResponse conversarFallbackRegras(String mensagem, List<DiarioFilme> assistidos, List<Filme> candidatos) {
+        String msgLower = mensagem.trim().toLowerCase();
         Set<String> generosAssistidos = assistidos.stream()
                 .map(d -> d.getFilme().getGenero())
                 .filter(Objects::nonNull)
@@ -62,30 +166,10 @@ public class ChatbotService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        // Identifica solicitações de gêneros específicos na mensagem do usuário
         String generoProcurado = identificarGeneroNaMensagem(msgLower);
-
-        // Filmes não assistidos para recomendar
-        List<Filme> candidatos = todosFilmes.stream()
-                .filter(f -> !idsAssistidos.contains(f.getId()))
-                .collect(Collectors.toList());
-
-        // Se o catálogo não assistido estiver vazio, considera todo o catálogo
-        if (candidatos.isEmpty()) {
-            candidatos = new ArrayList<>(todosFilmes);
-        }
-
         List<FilmeRecomendacaoDTO> recomendacoes = new ArrayList<>();
         StringBuilder respostaBuilder = new StringBuilder();
 
-        if (candidatos.isEmpty()) {
-            return new ChatResponse(
-                "No momento não temos filmes cadastrados no catálogo para sugerir. Que tal adicionar alguns filmes no sistema?",
-                Collections.emptyList()
-            );
-        }
-
-        // Se o usuário pediu um gênero específico (ex: "sugira filmes de ação", "quero um suspense")
         if (generoProcurado != null) {
             List<Filme> porGenero = candidatos.stream()
                     .filter(f -> f.getGenero() != null && f.getGenero().toLowerCase().contains(generoProcurado.toLowerCase()))
@@ -104,9 +188,7 @@ public class ChatbotService {
                 respostaBuilder.append("Não encontrei lançamentos específicos de ").append(generoProcurado).append(" não assistidos no catálogo, mas aqui estão ótimas sugestões de outros gêneros:\n");
                 adicionarSugestoesPadrao(candidatos, recomendacoes);
             }
-        } 
-        // Se o usuário já assistiu a filmes e pede recomendação geral ou conversa
-        else if (!assistidos.isEmpty()) {
+        } else if (!assistidos.isEmpty()) {
             String titulosAssistidos = assistidos.stream()
                     .limit(3)
                     .map(d -> "\"" + d.getFilme().getTitulo() + "\"")
@@ -115,7 +197,6 @@ public class ChatbotService {
             respostaBuilder.append("Analisando o seu histórico de diário, vi que você assistiu recentemente a: ")
                     .append(titulosAssistidos).append(".\n\n");
 
-            // Prioriza filmes com gêneros ou diretores semelhantes aos assistidos
             List<Filme> semelhantes = candidatos.stream()
                     .filter(f -> (f.getGenero() != null && generosAssistidos.contains(f.getGenero())) ||
                                  (f.getDiretor() != null && diretoresAssistidos.contains(f.getDiretor())))
@@ -134,9 +215,7 @@ public class ChatbotService {
                 respostaBuilder.append("Aqui estão as principais dicas de filmes do catálogo para expandir seu repertório:");
                 adicionarSugestoesPadrao(candidatos, recomendacoes);
             }
-        } 
-        // Se é um usuário novo ou sem filmes marcados no diário
-        else {
+        } else {
             respostaBuilder.append("Olá! Vi que você ainda não marcou filmes no seu diário de assistidos. ")
                     .append("Para começar a construir seu histórico, aqui estão excelentes sugestões do nosso catálogo:");
 

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,6 +33,9 @@ class ChatbotServiceTest {
 
     @Mock
     private DiarioFilmeRepository diarioFilmeRepository;
+
+    @Mock
+    private LlmService llmService;
 
     @InjectMocks
     private ChatbotService chatbotService;
@@ -61,12 +65,28 @@ class ChatbotServiceTest {
     }
 
     @Test
-    void testConversar_WithWatchedHistory() {
+    void testConversar_WithLlmResponse() {
+        when(usuarioRepository.findByUsername("iury")).thenReturn(Optional.of(usuario));
+        when(diarioFilmeRepository.findByUsuarioIdOrderByDataAssistidoDesc(1L)).thenReturn(Collections.emptyList());
+        when(filmeRepository.findAll()).thenReturn(List.of(filme1, filme2));
+        when(llmService.gerarResposta(anyString(), anyString())).thenReturn("Com base no seu perfil, recomendo Interstellar!");
+
+        ChatResponse response = chatbotService.conversar("iury", "Me recomende um filme legal");
+
+        assertNotNull(response);
+        assertEquals("Com base no seu perfil, recomendo Interstellar!", response.resposta());
+        assertFalse(response.recomendacoes().isEmpty());
+        assertEquals("Interstellar", response.recomendacoes().get(0).titulo());
+    }
+
+    @Test
+    void testConversar_WithWatchedHistoryFallback() {
         DiarioFilme diario = new DiarioFilme(usuario, filme1, "Excelente filme!");
-        
+
         when(usuarioRepository.findByUsername("iury")).thenReturn(Optional.of(usuario));
         when(diarioFilmeRepository.findByUsuarioIdOrderByDataAssistidoDesc(1L)).thenReturn(List.of(diario));
         when(filmeRepository.findAll()).thenReturn(List.of(filme1, filme2));
+        when(llmService.gerarResposta(anyString(), anyString())).thenReturn(null); // Simula falha/fallback
 
         ChatResponse response = chatbotService.conversar("iury", "Me recomende um filme");
 
@@ -77,10 +97,11 @@ class ChatbotServiceTest {
     }
 
     @Test
-    void testConversar_GenreFilter() {
+    void testConversar_GenreFilterFallback() {
         when(usuarioRepository.findByUsername("iury")).thenReturn(Optional.of(usuario));
         when(diarioFilmeRepository.findByUsuarioIdOrderByDataAssistidoDesc(1L)).thenReturn(Collections.emptyList());
         when(filmeRepository.findAll()).thenReturn(List.of(filme1, filme2));
+        when(llmService.gerarResposta(anyString(), anyString())).thenReturn(null); // Fallback
 
         ChatResponse response = chatbotService.conversar("iury", "Quero assistir uma ficção científica");
 
